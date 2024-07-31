@@ -143,7 +143,7 @@ export function SettingIcon(props: IconProps) {
         viewBox="0 0 24 24"
         width="24"
         height="24"
-        color="#000000"
+        color="currentColor"
         fill="none"
       >
         <path
@@ -169,7 +169,7 @@ export function MentoringIcon(props: IconProps) {
         viewBox="0 0 24 24"
         width="24"
         height="24"
-        color="#000000"
+        color="currentColor"
         fill="none"
       >
         <path
