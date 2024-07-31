@@ -30,7 +30,7 @@ const BaseLayout = (props: RouteSectionProps) => {
         </div>
       </header>
       <div class="flex flex-grow overflow-hidden w-full">
-        <aside classList={{ "basis-15": !isCollapsed() }}>
+        <aside class="sidebar" classList={{ "basis-15": !isCollapsed() }}>
           <Nav
             isCollapsed={isCollapsed()}
             links={[
