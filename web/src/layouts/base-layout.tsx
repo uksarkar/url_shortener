@@ -35,19 +35,19 @@ const BaseLayout = (props: RouteSectionProps) => {
               {
                 title: "Dashboard",
                 icon: DashboardIcon,
-                variant: "default"
+                to: "/"
               },
               {
                 title: "Links",
                 label: "9",
                 icon: LinkIcon,
-                variant: "ghost"
+                to: "/links"
               },
               {
                 title: "Domains",
                 icon: WebIcon,
-                variant: "ghost"
-              },
+                to: "/domains"
+              }
             ]}
           />
           <Separator />
@@ -57,24 +57,24 @@ const BaseLayout = (props: RouteSectionProps) => {
               {
                 title: "Users",
                 icon: IconUsers,
-                variant: "ghost"
+                to: "/users"
               },
               {
                 title: "Roles",
                 icon: MentoringIcon,
-                variant: "ghost"
+                to: "/roles"
               },
               {
                 title: "Settings",
                 icon: SettingIcon,
-                variant: "ghost"
+                to: "/settings"
               },
               {
                 title: "Support",
                 label: "1",
                 icon: IconMessages,
-                variant: "ghost"
-              },
+                to: "/support"
+              }
             ]}
           />
         </aside>

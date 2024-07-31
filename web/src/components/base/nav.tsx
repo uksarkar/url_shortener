@@ -8,6 +8,8 @@ import {
   TooltipContent,
   TooltipTrigger
 } from "~/components/ui/tooltip";
+import { A } from "@solidjs/router";
+import { useLocation } from "@solidjs/router";
 
 interface NavProps {
   isCollapsed: boolean;
@@ -15,11 +17,19 @@ interface NavProps {
     title: string;
     label?: string;
     icon: Component;
-    variant: "default" | "ghost";
+    to: string;
   }[];
 }
 
 export function Nav(props: NavProps) {
+  const location = useLocation();
+
+  function isActiveRoute(path: string, strict = true): boolean {
+    return strict
+      ? location.pathname === path
+      : location.pathname.startsWith(path);
+  }
+
   return (
     <div
       data-collapsed={props.isCollapsed}
@@ -33,18 +43,25 @@ export function Nav(props: NavProps) {
               <Show
                 when={props.isCollapsed}
                 fallback={
-                  <a
-                    href="#"
-                    class={cn(
+                  <A
+                    href={item.to}
+                    activeClass={cn(
                       buttonVariants({
-                        variant: item.variant,
+                        variant: "default",
                         size: "sm",
                         class: "text-sm"
                       }),
-                      item.variant === "default" &&
-                        "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white",
+                      "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white justify-start"
+                    )}
+                    inactiveClass={cn(
+                      buttonVariants({
+                        variant: "ghost",
+                        size: "sm",
+                        class: "text-sm"
+                      }),
                       "justify-start"
                     )}
+                    end
                   >
                     <div class="mr-2">
                       <Icon />
@@ -54,24 +71,27 @@ export function Nav(props: NavProps) {
                       <span
                         class={cn(
                           "ml-auto",
-                          item.variant === "default" &&
+                          isActiveRoute(item.to) &&
                             "text-background dark:text-white"
                         )}
                       >
                         {item.label}
                       </span>
                     )}
-                  </a>
+                  </A>
                 }
               >
                 <Tooltip openDelay={0} closeDelay={0} placement="right">
                   <TooltipTrigger
                     as="a"
-                    href="#"
+                    href={item.to}
                     class={cn(
-                      buttonVariants({ variant: item.variant, size: "icon" }),
+                      buttonVariants({
+                        variant: isActiveRoute(item.to) ? "default" : "ghost",
+                        size: "icon"
+                      }),
                       "size-9",
-                      item.variant === "default" &&
+                      isActiveRoute(item.to) &&
                         "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white"
                     )}
                   >
