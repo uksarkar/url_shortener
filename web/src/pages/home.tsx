@@ -1,7 +1,5 @@
 import { Overview } from "~/components/base/overview";
 import { RecentSales } from "~/components/base/recent-sales";
-import { IconDownload } from "~/components/icons";
-import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
@@ -15,14 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 const Home = () => {
   return (
     <>
-      <div class="flex items-center justify-between space-y-2">
+      <div class="flex items-center justify-between space-y-2 mb-2">
         <h2 class="text-3xl font-bold tracking-tight">Dashboard</h2>
-        <div class="flex items-center space-x-2">
-          <Button>
-            <IconDownload class="mr-2 size-4" />
-            Download
-          </Button>
-        </div>
       </div>
       <Tabs defaultValue="overview" class="space-y-4">
         <TabsList>

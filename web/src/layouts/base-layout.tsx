@@ -4,15 +4,13 @@ import { Nav } from "~/components/base/nav";
 import { Search } from "~/components/base/search";
 import { UserNav } from "~/components/base/user-nav";
 import {
-  IconArchive,
-  IconFile,
-  IconInbox,
+  DashboardIcon,
   IconMessages,
-  IconSend,
-  IconShoppingCart,
-  IconTrash,
-  IconUpdates,
-  IconUsers
+  IconUsers,
+  LinkIcon,
+  MentoringIcon,
+  SettingIcon,
+  WebIcon
 } from "~/components/icons";
 import { Separator } from "~/components/ui/separator";
 
@@ -35,35 +33,21 @@ const BaseLayout = (props: RouteSectionProps) => {
             isCollapsed={isCollapsed()}
             links={[
               {
-                title: "Inbox",
-                label: "128",
-                icon: IconInbox,
+                title: "Dashboard",
+                icon: DashboardIcon,
                 variant: "default"
               },
               {
-                title: "Drafts",
+                title: "Links",
                 label: "9",
-                icon: IconFile,
+                icon: LinkIcon,
                 variant: "ghost"
               },
               {
-                title: "Sent",
-                label: "",
-                icon: IconSend,
+                title: "Domains",
+                icon: WebIcon,
                 variant: "ghost"
               },
-              {
-                title: "Trash",
-                label: "23",
-                icon: IconTrash,
-                variant: "ghost"
-              },
-              {
-                title: "Archive",
-                label: "",
-                icon: IconArchive,
-                variant: "ghost"
-              }
             ]}
           />
           <Separator />
@@ -71,40 +55,31 @@ const BaseLayout = (props: RouteSectionProps) => {
             isCollapsed={isCollapsed()}
             links={[
               {
-                title: "Social",
-                label: "972",
+                title: "Users",
                 icon: IconUsers,
                 variant: "ghost"
               },
               {
-                title: "Updates",
-                label: "342",
-                icon: IconUpdates,
+                title: "Roles",
+                icon: MentoringIcon,
                 variant: "ghost"
               },
               {
-                title: "Forums",
-                label: "128",
+                title: "Settings",
+                icon: SettingIcon,
+                variant: "ghost"
+              },
+              {
+                title: "Support",
+                label: "1",
                 icon: IconMessages,
                 variant: "ghost"
               },
-              {
-                title: "Shopping",
-                label: "8",
-                icon: IconShoppingCart,
-                variant: "ghost"
-              },
-              {
-                title: "Promotions",
-                label: "21",
-                icon: IconArchive,
-                variant: "ghost"
-              }
             ]}
           />
         </aside>
         <main
-          class="overflow-y-auto p-4" 
+          class="overflow-y-auto p-4"
           classList={{
             "basis-85": !isCollapsed(),
             "basis-full": isCollapsed()
