@@ -8,8 +8,12 @@ const routes: RouteDefinition[] = [
     component: Home
   },
   {
-    path: "/about",
-    component: lazy(() => import("./pages/about"))
+    path: "/links",
+    component: lazy(() => import("./pages/links"))
+  },
+  {
+    path: "/users",
+    component: lazy(() => import("./pages/users"))
   }
 ];
 

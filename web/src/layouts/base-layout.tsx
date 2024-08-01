@@ -12,6 +12,13 @@ import {
   SettingIcon,
   WebIcon
 } from "~/components/icons";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator
+} from "~/components/ui/breadcrumb";
 import { Separator } from "~/components/ui/separator";
 
 const BaseLayout = (props: RouteSectionProps) => {
@@ -85,6 +92,17 @@ const BaseLayout = (props: RouteSectionProps) => {
             "basis-full": isCollapsed()
           }}
         >
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/">Home</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink current>Links</BreadcrumbLink> 
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
           {props.children}
         </main>
       </div>

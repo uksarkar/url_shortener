@@ -1,4 +1,5 @@
 import { Overview } from "~/components/base/overview";
+import PageTitle from "~/components/base/page-title";
 import { RecentSales } from "~/components/base/recent-sales";
 import {
   Card,
@@ -13,9 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 const Home = () => {
   return (
     <>
-      <div class="flex items-center justify-between space-y-2 mb-2">
-        <h2 class="text-3xl font-bold tracking-tight">Dashboard</h2>
-      </div>
+      <PageTitle title="Dashboard" />
       <Tabs defaultValue="overview" class="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
