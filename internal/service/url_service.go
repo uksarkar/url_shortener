@@ -3,7 +3,9 @@ package service
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"url-shortener/internal/model"
+	"strings"
+	"time"
+	"url-shortener/internal/graph/gqmodel"
 	"url-shortener/internal/repository"
 )
 
@@ -15,29 +17,27 @@ func NewURLService(repo *repository.URLRepository) *URLService {
 	return &URLService{Repo: repo}
 }
 
-func (s *URLService) ShortenURL(originalURL string) (string, error) {
-	hasher := sha1.New()
-	hasher.Write([]byte(originalURL))
-	shortURL := hex.EncodeToString(hasher.Sum(nil))[:8]
+func (s *URLService) Create(input gqmodel.ShortenURL) (*gqmodel.URL, error) {
+	var hash string
+	if input.Hash == nil || *input.Hash == "" || strings.TrimSpace(*input.Hash) == "" {
+		hasher := sha1.New()
+		hasher.Write([]byte(strings.Join([]string{input.OriginalURL, time.Now().String()}, "|")))
+		hash = hex.EncodeToString(hasher.Sum(nil))[:8]
+	} else {
+		hash = *input.Hash
+	}
 
-	url := model.URL{
-		OriginalURL: originalURL,
-		ShortURL:    shortURL,
+	url := gqmodel.URL{
+		OriginalURL: input.OriginalURL,
+		Hash:        hash,
+		DomainID:    input.DomainID,
+		IsActive:    true,
 	}
 
 	err := s.Repo.Save(url)
 	if err != nil {
-		return "", err
+		return &url, err
 	}
 
-	return shortURL, nil
-}
-
-func (s *URLService) GetOriginalURL(shortURL string) (string, error) {
-	url, err := s.Repo.FindByShortURL(shortURL)
-	if err != nil {
-		return "", err
-	}
-
-	return url.OriginalURL, nil
+	return &url, nil
 }

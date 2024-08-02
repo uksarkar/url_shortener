@@ -1,6 +1,6 @@
 import PageTitle from "~/components/base/page-title";
 import { Search } from "~/components/base/search";
-import { Button } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { Flex } from "~/components/ui/flex";
 import {
@@ -67,7 +67,12 @@ export default function Links() {
                 <TableCell>55</TableCell>
                 <TableCell class="text-right">
                   <Dialog>
-                    <DialogTrigger as={Button<"button">}>Edit</DialogTrigger>
+                    <DialogTrigger
+                      class={buttonVariants({ variant: "secondary" })}
+                      as={Button<"button">}
+                    >
+                      Edit
+                    </DialogTrigger>
                     <DialogContent class="sm:max-w-[425px]">
                       <DialogHeader>
                         <DialogTitle>Edit link</DialogTitle>

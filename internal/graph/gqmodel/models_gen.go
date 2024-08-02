@@ -8,9 +8,18 @@ type Mutation struct {
 type Query struct {
 }
 
+type ShortenURL struct {
+	OriginalURL string  `json:"original_url"`
+	Hash        *string `json:"hash,omitempty"`
+	DomainID    *int    `json:"domain_id,omitempty"`
+}
+
 type URL struct {
-	ID          string `json:"id"`
-	OriginalURL string `json:"originalURL"`
-	ShortURL    string `json:"shortURL"`
-	CreatedAt   string `json:"createdAt"`
+	ID          int    `json:"id"`
+	OriginalURL string `json:"original_url"`
+	Hash        string `json:"hash"`
+	DomainID    *int   `json:"domain_id,omitempty"`
+	IsActive    bool   `json:"is_active"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
 }

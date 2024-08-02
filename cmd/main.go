@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 	"url-shortener/internal/graph"
-	"url-shortener/internal/handler"
 	"url-shortener/internal/repository"
 	"url-shortener/internal/service"
 	"url-shortener/pkg/db"
@@ -23,10 +22,6 @@ func main() {
 
 	urlRepo := repository.NewURLRepository(database)
 	urlService := service.NewURLService(urlRepo)
-	urlHandler := handler.NewURLHandler(urlService)
-
-	http.HandleFunc("/shorten", urlHandler.ShortenURL)
-	http.HandleFunc("/original", urlHandler.GetOriginalURL)
 
 	srv := gqlhandler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{URLService: urlService}}))
 

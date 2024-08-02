@@ -3,17 +3,26 @@
 # https://gqlgen.com/getting-started/
 
 type URL {
-    id: ID!
-    originalURL: String!
-    shortURL: String!
-    createdAt: String!
+  id: Int!
+  original_url: String!
+  hash: String!
+  domain_id: Int
+  is_active: Boolean!
+  created_at: String!
+  updated_at: String!
 }
 
 type Query {
-    urls: [URL!]!
-    url(shortURL: String!): URL
+  urls: [URL!]!
+  url(id: Int!): URL
+}
+
+input ShortenURL {
+  original_url: String!
+  hash: String
+  domain_id: Int
 }
 
 type Mutation {
-    shortenURL(originalURL: String!): URL!
+  shortenURL(input: ShortenURL): URL!
 }

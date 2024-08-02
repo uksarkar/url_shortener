@@ -48,28 +48,31 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		ShortenURL func(childComplexity int, originalURL string) int
+		ShortenURL func(childComplexity int, input *gqmodel.ShortenURL) int
 	}
 
 	Query struct {
-		URL  func(childComplexity int, shortURL string) int
+		URL  func(childComplexity int, id int) int
 		Urls func(childComplexity int) int
 	}
 
 	URL struct {
 		CreatedAt   func(childComplexity int) int
+		DomainID    func(childComplexity int) int
+		Hash        func(childComplexity int) int
 		ID          func(childComplexity int) int
+		IsActive    func(childComplexity int) int
 		OriginalURL func(childComplexity int) int
-		ShortURL    func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
 	}
 }
 
 type MutationResolver interface {
-	ShortenURL(ctx context.Context, originalURL string) (*gqmodel.URL, error)
+	ShortenURL(ctx context.Context, input *gqmodel.ShortenURL) (*gqmodel.URL, error)
 }
 type QueryResolver interface {
 	Urls(ctx context.Context) ([]*gqmodel.URL, error)
-	URL(ctx context.Context, shortURL string) (*gqmodel.URL, error)
+	URL(ctx context.Context, id int) (*gqmodel.URL, error)
 }
 
 type executableSchema struct {
@@ -101,7 +104,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.ShortenURL(childComplexity, args["originalURL"].(string)), true
+		return e.complexity.Mutation.ShortenURL(childComplexity, args["input"].(*gqmodel.ShortenURL)), true
 
 	case "Query.url":
 		if e.complexity.Query.URL == nil {
@@ -113,7 +116,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.URL(childComplexity, args["shortURL"].(string)), true
+		return e.complexity.Query.URL(childComplexity, args["id"].(int)), true
 
 	case "Query.urls":
 		if e.complexity.Query.Urls == nil {
@@ -122,12 +125,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Urls(childComplexity), true
 
-	case "URL.createdAt":
+	case "URL.created_at":
 		if e.complexity.URL.CreatedAt == nil {
 			break
 		}
 
 		return e.complexity.URL.CreatedAt(childComplexity), true
+
+	case "URL.domain_id":
+		if e.complexity.URL.DomainID == nil {
+			break
+		}
+
+		return e.complexity.URL.DomainID(childComplexity), true
+
+	case "URL.hash":
+		if e.complexity.URL.Hash == nil {
+			break
+		}
+
+		return e.complexity.URL.Hash(childComplexity), true
 
 	case "URL.id":
 		if e.complexity.URL.ID == nil {
@@ -136,19 +153,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.URL.ID(childComplexity), true
 
-	case "URL.originalURL":
+	case "URL.is_active":
+		if e.complexity.URL.IsActive == nil {
+			break
+		}
+
+		return e.complexity.URL.IsActive(childComplexity), true
+
+	case "URL.original_url":
 		if e.complexity.URL.OriginalURL == nil {
 			break
 		}
 
 		return e.complexity.URL.OriginalURL(childComplexity), true
 
-	case "URL.shortURL":
-		if e.complexity.URL.ShortURL == nil {
+	case "URL.updated_at":
+		if e.complexity.URL.UpdatedAt == nil {
 			break
 		}
 
-		return e.complexity.URL.ShortURL(childComplexity), true
+		return e.complexity.URL.UpdatedAt(childComplexity), true
 
 	}
 	return 0, false
@@ -157,7 +181,9 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputShortenURL,
+	)
 	first := true
 
 	switch rc.Operation.Operation {
@@ -276,15 +302,15 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_shortenURL_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["originalURL"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("originalURL"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+	var arg0 *gqmodel.ShortenURL
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOShortenURL2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐShortenURL(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["originalURL"] = arg0
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -306,15 +332,15 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_url_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["shortURL"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shortURL"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+	var arg0 int
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["shortURL"] = arg0
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -370,7 +396,7 @@ func (ec *executionContext) _Mutation_shortenURL(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().ShortenURL(rctx, fc.Args["originalURL"].(string))
+		return ec.resolvers.Mutation().ShortenURL(rctx, fc.Args["input"].(*gqmodel.ShortenURL))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -384,7 +410,7 @@ func (ec *executionContext) _Mutation_shortenURL(ctx context.Context, field grap
 	}
 	res := resTmp.(*gqmodel.URL)
 	fc.Result = res
-	return ec.marshalNURL2ᚖurlᚑshortenerᚋgraphᚋgqmodelᚐURL(ctx, field.Selections, res)
+	return ec.marshalNURL2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐURL(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_shortenURL(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -397,12 +423,18 @@ func (ec *executionContext) fieldContext_Mutation_shortenURL(ctx context.Context
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_URL_id(ctx, field)
-			case "originalURL":
-				return ec.fieldContext_URL_originalURL(ctx, field)
-			case "shortURL":
-				return ec.fieldContext_URL_shortURL(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_URL_createdAt(ctx, field)
+			case "original_url":
+				return ec.fieldContext_URL_original_url(ctx, field)
+			case "hash":
+				return ec.fieldContext_URL_hash(ctx, field)
+			case "domain_id":
+				return ec.fieldContext_URL_domain_id(ctx, field)
+			case "is_active":
+				return ec.fieldContext_URL_is_active(ctx, field)
+			case "created_at":
+				return ec.fieldContext_URL_created_at(ctx, field)
+			case "updated_at":
+				return ec.fieldContext_URL_updated_at(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type URL", field.Name)
 		},
@@ -449,7 +481,7 @@ func (ec *executionContext) _Query_urls(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.([]*gqmodel.URL)
 	fc.Result = res
-	return ec.marshalNURL2ᚕᚖurlᚑshortenerᚋgraphᚋgqmodelᚐURLᚄ(ctx, field.Selections, res)
+	return ec.marshalNURL2ᚕᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐURLᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_urls(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -462,12 +494,18 @@ func (ec *executionContext) fieldContext_Query_urls(_ context.Context, field gra
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_URL_id(ctx, field)
-			case "originalURL":
-				return ec.fieldContext_URL_originalURL(ctx, field)
-			case "shortURL":
-				return ec.fieldContext_URL_shortURL(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_URL_createdAt(ctx, field)
+			case "original_url":
+				return ec.fieldContext_URL_original_url(ctx, field)
+			case "hash":
+				return ec.fieldContext_URL_hash(ctx, field)
+			case "domain_id":
+				return ec.fieldContext_URL_domain_id(ctx, field)
+			case "is_active":
+				return ec.fieldContext_URL_is_active(ctx, field)
+			case "created_at":
+				return ec.fieldContext_URL_created_at(ctx, field)
+			case "updated_at":
+				return ec.fieldContext_URL_updated_at(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type URL", field.Name)
 		},
@@ -489,7 +527,7 @@ func (ec *executionContext) _Query_url(ctx context.Context, field graphql.Collec
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().URL(rctx, fc.Args["shortURL"].(string))
+		return ec.resolvers.Query().URL(rctx, fc.Args["id"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -500,7 +538,7 @@ func (ec *executionContext) _Query_url(ctx context.Context, field graphql.Collec
 	}
 	res := resTmp.(*gqmodel.URL)
 	fc.Result = res
-	return ec.marshalOURL2ᚖurlᚑshortenerᚋgraphᚋgqmodelᚐURL(ctx, field.Selections, res)
+	return ec.marshalOURL2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐURL(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -513,12 +551,18 @@ func (ec *executionContext) fieldContext_Query_url(ctx context.Context, field gr
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_URL_id(ctx, field)
-			case "originalURL":
-				return ec.fieldContext_URL_originalURL(ctx, field)
-			case "shortURL":
-				return ec.fieldContext_URL_shortURL(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_URL_createdAt(ctx, field)
+			case "original_url":
+				return ec.fieldContext_URL_original_url(ctx, field)
+			case "hash":
+				return ec.fieldContext_URL_hash(ctx, field)
+			case "domain_id":
+				return ec.fieldContext_URL_domain_id(ctx, field)
+			case "is_active":
+				return ec.fieldContext_URL_is_active(ctx, field)
+			case "created_at":
+				return ec.fieldContext_URL_created_at(ctx, field)
+			case "updated_at":
+				return ec.fieldContext_URL_updated_at(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type URL", field.Name)
 		},
@@ -692,9 +736,9 @@ func (ec *executionContext) _URL_id(ctx context.Context, field graphql.Collected
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_URL_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -704,14 +748,14 @@ func (ec *executionContext) fieldContext_URL_id(_ context.Context, field graphql
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _URL_originalURL(ctx context.Context, field graphql.CollectedField, obj *gqmodel.URL) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_URL_originalURL(ctx, field)
+func (ec *executionContext) _URL_original_url(ctx context.Context, field graphql.CollectedField, obj *gqmodel.URL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_URL_original_url(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -741,7 +785,7 @@ func (ec *executionContext) _URL_originalURL(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_URL_originalURL(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_URL_original_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "URL",
 		Field:      field,
@@ -754,8 +798,8 @@ func (ec *executionContext) fieldContext_URL_originalURL(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _URL_shortURL(ctx context.Context, field graphql.CollectedField, obj *gqmodel.URL) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_URL_shortURL(ctx, field)
+func (ec *executionContext) _URL_hash(ctx context.Context, field graphql.CollectedField, obj *gqmodel.URL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_URL_hash(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -768,7 +812,7 @@ func (ec *executionContext) _URL_shortURL(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ShortURL, nil
+		return obj.Hash, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -785,7 +829,7 @@ func (ec *executionContext) _URL_shortURL(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_URL_shortURL(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_URL_hash(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "URL",
 		Field:      field,
@@ -798,8 +842,93 @@ func (ec *executionContext) fieldContext_URL_shortURL(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _URL_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqmodel.URL) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_URL_createdAt(ctx, field)
+func (ec *executionContext) _URL_domain_id(ctx context.Context, field graphql.CollectedField, obj *gqmodel.URL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_URL_domain_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DomainID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_URL_domain_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "URL",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _URL_is_active(ctx context.Context, field graphql.CollectedField, obj *gqmodel.URL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_URL_is_active(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsActive, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_URL_is_active(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "URL",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _URL_created_at(ctx context.Context, field graphql.CollectedField, obj *gqmodel.URL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_URL_created_at(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -829,7 +958,51 @@ func (ec *executionContext) _URL_createdAt(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_URL_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_URL_created_at(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "URL",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _URL_updated_at(ctx context.Context, field graphql.CollectedField, obj *gqmodel.URL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_URL_updated_at(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_URL_updated_at(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "URL",
 		Field:      field,
@@ -2615,6 +2788,47 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputShortenURL(ctx context.Context, obj interface{}) (gqmodel.ShortenURL, error) {
+	var it gqmodel.ShortenURL
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"original_url", "hash", "domain_id"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "original_url":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("original_url"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OriginalURL = data
+		case "hash":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hash"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Hash = data
+		case "domain_id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("domain_id"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DomainID = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -2779,18 +2993,30 @@ func (ec *executionContext) _URL(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "originalURL":
-			out.Values[i] = ec._URL_originalURL(ctx, field, obj)
+		case "original_url":
+			out.Values[i] = ec._URL_original_url(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "shortURL":
-			out.Values[i] = ec._URL_shortURL(ctx, field, obj)
+		case "hash":
+			out.Values[i] = ec._URL_hash(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "createdAt":
-			out.Values[i] = ec._URL_createdAt(ctx, field, obj)
+		case "domain_id":
+			out.Values[i] = ec._URL_domain_id(ctx, field, obj)
+		case "is_active":
+			out.Values[i] = ec._URL_is_active(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "created_at":
+			out.Values[i] = ec._URL_created_at(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updated_at":
+			out.Values[i] = ec._URL_updated_at(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3158,13 +3384,13 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalID(v)
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -3188,11 +3414,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNURL2urlᚑshortenerᚋgraphᚋgqmodelᚐURL(ctx context.Context, sel ast.SelectionSet, v gqmodel.URL) graphql.Marshaler {
+func (ec *executionContext) marshalNURL2urlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐURL(ctx context.Context, sel ast.SelectionSet, v gqmodel.URL) graphql.Marshaler {
 	return ec._URL(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNURL2ᚕᚖurlᚑshortenerᚋgraphᚋgqmodelᚐURLᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqmodel.URL) graphql.Marshaler {
+func (ec *executionContext) marshalNURL2ᚕᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐURLᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqmodel.URL) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3216,7 +3442,7 @@ func (ec *executionContext) marshalNURL2ᚕᚖurlᚑshortenerᚋgraphᚋgqmodel�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNURL2ᚖurlᚑshortenerᚋgraphᚋgqmodelᚐURL(ctx, sel, v[i])
+			ret[i] = ec.marshalNURL2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐURL(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3236,7 +3462,7 @@ func (ec *executionContext) marshalNURL2ᚕᚖurlᚑshortenerᚋgraphᚋgqmodel�
 	return ret
 }
 
-func (ec *executionContext) marshalNURL2ᚖurlᚑshortenerᚋgraphᚋgqmodelᚐURL(ctx context.Context, sel ast.SelectionSet, v *gqmodel.URL) graphql.Marshaler {
+func (ec *executionContext) marshalNURL2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐURL(ctx context.Context, sel ast.SelectionSet, v *gqmodel.URL) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -3525,6 +3751,30 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOShortenURL2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐShortenURL(ctx context.Context, v interface{}) (*gqmodel.ShortenURL, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputShortenURL(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -3541,7 +3791,7 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalOURL2ᚖurlᚑshortenerᚋgraphᚋgqmodelᚐURL(ctx context.Context, sel ast.SelectionSet, v *gqmodel.URL) graphql.Marshaler {
+func (ec *executionContext) marshalOURL2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐURL(ctx context.Context, sel ast.SelectionSet, v *gqmodel.URL) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

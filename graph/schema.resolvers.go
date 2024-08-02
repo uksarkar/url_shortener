@@ -6,30 +6,31 @@ package graph
 
 import (
 	"context"
+	"fmt"
+	"url-shortener/internal/graph"
 	"url-shortener/internal/graph/gqmodel"
 )
 
 // ShortenURL is the resolver for the shortenURL field.
 func (r *mutationResolver) ShortenURL(ctx context.Context, input *gqmodel.ShortenURL) (*gqmodel.URL, error) {
-	return r.URLService.Create(*input)
+	panic(fmt.Errorf("not implemented: ShortenURL - shortenURL"))
 }
 
 // Urls is the resolver for the urls field.
 func (r *queryResolver) Urls(ctx context.Context) ([]*gqmodel.URL, error) {
-	fields := r.GetRequestedFields(ctx)
-	return r.URLService.Repo.Get(fields)
+	panic(fmt.Errorf("not implemented: Urls - urls"))
 }
 
 // URL is the resolver for the url field.
 func (r *queryResolver) URL(ctx context.Context, id int) (*gqmodel.URL, error) {
-	return r.URLService.Repo.Find(id)
+	panic(fmt.Errorf("not implemented: URL - url"))
 }
 
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+// Mutation returns graph.MutationResolver implementation.
+func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
 
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+// Query returns graph.QueryResolver implementation.
+func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
