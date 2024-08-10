@@ -16,39 +16,39 @@ func NewLinkRepository(db *sql.DB) *LinkRepository {
 	return &LinkRepository{DB: db}
 }
 
-func (repo *LinkRepository) Save(url gqmodel.Link) error {
-	query := "INSERT INTO urls (original_url, hash, domain_id, is_active) VALUES ($1, $2, $3, $4)"
-	_, err := repo.DB.Exec(query, url.OriginalLink, url.Hash, url.DomainID, url.IsActive)
+func (repo *LinkRepository) Save(link gqmodel.Link) error {
+	query := "INSERT INTO links (original_link, hash, domain_id, is_active) VALUES ($1, $2, $3, $4)"
+	_, err := repo.DB.Exec(query, link.OriginalLink, link.Hash, link.DomainID, link.IsActive)
 	return err
 }
 
 func (repo *LinkRepository) Find(id int) (*gqmodel.Link, error) {
-	var url gqmodel.Link
-	query := "SELECT id, original_url, hash, is_active, created_at, updated_at FROM urls WHERE id=$1 AND deleted_at IS NULL"
-	err := repo.DB.QueryRow(query, id).Scan(&url.ID, &url.OriginalLink, &url.Hash, &url.IsActive, &url.CreatedAt, &url.UpdatedAt)
-	return &url, err
+	var link gqmodel.Link
+	query := "SELECT id, original_link, hash, is_active, created_at, updated_at FROM links WHERE id=$1 AND deleted_at IS NULL"
+	err := repo.DB.QueryRow(query, id).Scan(&link.ID, &link.OriginalLink, &link.Hash, &link.IsActive, &link.CreatedAt, &link.UpdatedAt)
+	return &link, err
 }
 
 func (repo *LinkRepository) FindByHash(hash string) (gqmodel.Link, error) {
-	var url gqmodel.Link
-	query := "SELECT id, original_url, hash, is_active, created_at, updated_at FROM urls WHERE hash=$1 AND deleted_at IS NULL"
-	err := repo.DB.QueryRow(query, hash).Scan(&url.ID, &url.OriginalLink, &url.Hash, &url.IsActive, &url.CreatedAt, &url.UpdatedAt)
-	return url, err
+	var link gqmodel.Link
+	query := "SELECT id, original_link, hash, is_active, created_at, updated_at FROM links WHERE hash=$1 AND deleted_at IS NULL"
+	err := repo.DB.QueryRow(query, hash).Scan(&link.ID, &link.OriginalLink, &link.Hash, &link.IsActive, &link.CreatedAt, &link.UpdatedAt)
+	return link, err
 }
 
-func (r *LinkRepository) UpdateById(id int, url *gqmodel.Link) error {
-	query := "UPDATE urls (original_url, hash, domain_id, is_active) VALUES ($1, $2, $3, $4) WHERE id = $5 AND deleted_at IS NULL"
-	_, err := r.DB.Exec(query, url.OriginalLink, url.Hash, url.DomainID, url.IsActive, id)
+func (r *LinkRepository) UpdateById(id int, link *gqmodel.Link) error {
+	query := "UPDATE links (original_link, hash, domain_id, is_active) VALUES ($1, $2, $3, $4) WHERE id = $5 AND deleted_at IS NULL"
+	_, err := r.DB.Exec(query, link.OriginalLink, link.Hash, link.DomainID, link.IsActive, id)
 	return err
 }
 
 func (r *LinkRepository) DeleteById(id int) error {
-	_, err := r.DB.Exec("UPDATE urls SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL", id)
+	_, err := r.DB.Exec("UPDATE links SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL", id)
 	return err
 }
 
 func (repo *LinkRepository) Get(fields []string, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.LinksResult, error) {
-	sqlFields := "id,original_url,hash,is_active,created_at,updated_at"
+	sqlFields := "id,original_link,hash,is_active,created_at,updated_at"
 	if len(fields) > 0 {
 		sqlFields = strings.Join(fields, ",")
 	}
@@ -58,7 +58,7 @@ func (repo *LinkRepository) Get(fields []string, pagination gqmodel.PaginationQu
 
 	// instead of select * should select only selected properties by the query
 	rows, err := repo.DB.Query(
-		fmt.Sprintf("SELECT %s FROM urls WHERE deleted_at IS NULL ORDER BY $1 %s LIMIT $2 OFFSET $3", sqlFields, *ordering.Direction),
+		fmt.Sprintf("SELECT %s FROM links WHERE deleted_at IS NULL ORDER BY $1 %s LIMIT $2 OFFSET $3", sqlFields, *ordering.Direction),
 		ordering.Column,
 		paginator.Limit(),
 		paginator.Offset(),
@@ -69,17 +69,17 @@ func (repo *LinkRepository) Get(fields []string, pagination gqmodel.PaginationQu
 	defer rows.Close()
 
 	// Create a slice to hold the results
-	var urls []*gqmodel.Link
+	var links []*gqmodel.Link
 
 	// Iterate over the rows and populate the slice
 	for rows.Next() {
-		var url gqmodel.Link
+		var link gqmodel.Link
 		// Scan based on requested fields
-		err := repo.scanToFields(rows, &url, strings.Split(sqlFields, ",")...)
+		err := repo.scanToFields(rows, &link, strings.Split(sqlFields, ",")...)
 		if err != nil {
 			return nil, err
 		}
-		urls = append(urls, &url)
+		links = append(links, &link)
 	}
 
 	// Check for errors from iterating over rows.
@@ -88,33 +88,33 @@ func (repo *LinkRepository) Get(fields []string, pagination gqmodel.PaginationQu
 	}
 
 	var total int
-	err = repo.DB.QueryRow("SELECT count(*) FROM urls WHERE deleted_at IS NULL").Scan(&total)
+	err = repo.DB.QueryRow("SELECT count(*) FROM links WHERE deleted_at IS NULL").Scan(&total)
 	if err != nil {
 		return nil, err
 	}
 
 	return &gqmodel.LinksResult{
-		Data: urls,
+		Data: links,
 		Meta: paginator.BuildMeta(total),
 	}, nil
 }
 
-func (repo *LinkRepository) scanToFields(rows *sql.Rows, url *gqmodel.Link, fields ...string) error {
+func (repo *LinkRepository) scanToFields(rows *sql.Rows, link *gqmodel.Link, fields ...string) error {
 	values := make([]interface{}, len(fields))
 	for i, field := range fields {
 		switch field {
 		case "id":
-			values[i] = &url.ID
-		case "original_url":
-			values[i] = &url.OriginalLink
+			values[i] = &link.ID
+		case "original_link":
+			values[i] = &link.OriginalLink
 		case "hash":
-			values[i] = &url.Hash
+			values[i] = &link.Hash
 		case "created_at":
-			values[i] = &url.CreatedAt
+			values[i] = &link.CreatedAt
 		case "is_active":
-			values[i] = &url.IsActive
+			values[i] = &link.IsActive
 		case "updated_at":
-			values[i] = &url.UpdatedAt
+			values[i] = &link.UpdatedAt
 		}
 	}
 	return rows.Scan(values...)
