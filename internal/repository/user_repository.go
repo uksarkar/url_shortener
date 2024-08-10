@@ -114,6 +114,8 @@ func (repo *UserRepository) scanToFields(rows *sql.Rows, user *gqmodel.User, fie
 			values[i] = &user.ID
 		case "name":
 			values[i] = &user.Name
+		case "email":
+			values[i] = &user.Email
 		case "is_admin":
 			values[i] = &user.IsAdmin
 		case "created_at":

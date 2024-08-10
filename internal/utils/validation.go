@@ -8,7 +8,7 @@ import (
 )
 
 func ValidateCreateUser(input *gqmodel.CreateUser) error {
-	return validation.ValidateStruct(&input,
+	return validation.ValidateStruct(input,
 		validation.Field(&input.Name, validation.Required, validation.Length(2, 255)),
 		validation.Field(&input.Email, validation.Required, is.Email),
 	)
