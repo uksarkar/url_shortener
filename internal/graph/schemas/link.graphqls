@@ -1,10 +1,7 @@
-# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
-type URL {
+# Models
+type Link {
   id: Int!
-  original_url: String!
+  original_Link: String!
   hash: String!
   domain_id: Int
   is_active: Boolean!
@@ -12,17 +9,15 @@ type URL {
   updated_at: String!
 }
 
-type Query {
-  urls: [URL!]!
-  url(id: Int!): URL
+type LinksResult {
+  data: [Link!]!
+  meta: PaginationMeta!
 }
 
-input ShortenURL {
-  original_url: String!
+
+# Form inputs
+input CreateLink {
+  original_Link: String!
   hash: String
   domain_id: Int
-}
-
-type Mutation {
-  shortenURL(input: ShortenURL): URL!
 }

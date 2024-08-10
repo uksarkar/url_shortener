@@ -1,0 +1,20 @@
+type Domain {
+    id: Int!
+    is_active: Boolean!
+    host: String!
+    force_https: Boolean!
+    created_at: String!
+    updated_at: String!
+    deleted_at: String
+}
+
+input CreateDomain {
+    is_active: Boolean!
+    force_https: Boolean!
+    host: String!
+}
+
+type DomainsResult {
+  data: [Domain!]!
+  meta: PaginationMeta!
+}

@@ -1,0 +1,22 @@
+type User {
+    id: Int!
+    name: String!
+    email: String!
+    is_active: Boolean!
+    is_admin: Boolean!
+    created_at: String!
+    updated_at: String!
+    deleted_at: String
+}
+
+input CreateUser {
+    name: String!
+    email: String!
+    is_active: Boolean!
+    is_admin: Boolean
+}
+
+type UserResult {
+  data: [User!]!
+  meta: PaginationMeta!
+}

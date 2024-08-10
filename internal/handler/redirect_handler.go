@@ -4,12 +4,12 @@ import (
 	"url-shortener/internal/service"
 )
 
-type URLHandler struct {
-	Service *service.URLService
+type RedirectHandler struct {
+	Service *service.LinkService
 }
 
-func NewURLHandler(service *service.URLService) *URLHandler {
-	return &URLHandler{Service: service}
+func NewRedirectHandler(service *service.LinkService) *RedirectHandler {
+	return &RedirectHandler{Service: service}
 }
 
 // func (h *URLHandler) ShortenURL(w http.ResponseWriter, r *http.Request) {

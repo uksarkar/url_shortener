@@ -1,0 +1,4 @@
+input SortBy {
+    column: String
+    direction: String
+}

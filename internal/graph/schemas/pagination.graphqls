@@ -1,0 +1,12 @@
+type PaginationMeta {
+    per_page: Int!
+    current_page: Int!
+    total: Int!
+    next: Int
+    prev: Int
+}
+
+input PaginationQuery {
+    per_page: Int!
+    current_page: Int!
+}

@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"url-shortener/internal/graph"
+	gq_resolver "url-shortener/internal/graph/resolvers"
 	"url-shortener/internal/repository"
 	"url-shortener/internal/service"
 	"url-shortener/pkg/db"
@@ -20,10 +21,11 @@ func main() {
 
 	defer database.Close()
 
-	urlRepo := repository.NewURLRepository(database)
-	urlService := service.NewURLService(urlRepo)
+	urlRepo := repository.NewLinkRepository(database)
+	linkService := service.NewLinkService(urlRepo)
+	resolver := gq_resolver.Resolver{LinkService: linkService}
 
-	srv := gqlhandler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{URLService: urlService}}))
+	srv := gqlhandler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &resolver}))
 
 	http.Handle("/playground", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
