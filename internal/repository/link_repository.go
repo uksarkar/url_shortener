@@ -120,6 +120,8 @@ func (repo *LinkRepository) scanToFields(rows *sql.Rows, link *gqmodel.Link, fie
 			values[i] = &link.OriginalLink
 		case "hash":
 			values[i] = &link.Hash
+		case "domain_id":
+			values[i] = &link.DomainID
 		case "created_at":
 			values[i] = &link.CreatedAt
 		case "is_active":

@@ -1,3 +1,5 @@
+import { createResource } from "solid-js";
+import { getUsers } from "~/api/user";
 import {
   Table,
   TableBody,
@@ -9,9 +11,19 @@ import {
 } from "~/components/ui/table";
 
 export default function Users() {
+  const [data] = createResource(async () => {
+    const response = await getUsers(1, 1);
+    return response;
+  });
+
+  console.log(data());
+
   return (
     <Table>
-      <TableCaption>A list of your recent invoices.</TableCaption>
+      <TableCaption>
+        {data.loading && <p>Loading...</p>}
+        {data.error && <p>Error: {data.error.message}</p>}
+      </TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead class="w-[100px]">Invoice</TableHead>

@@ -92,6 +92,7 @@ type ComplexityRoot struct {
 	PaginationMeta struct {
 		CurrentPage func(childComplexity int) int
 		Next        func(childComplexity int) int
+		Pages       func(childComplexity int) int
 		PerPage     func(childComplexity int) int
 		Prev        func(childComplexity int) int
 		Total       func(childComplexity int) int
@@ -409,6 +410,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PaginationMeta.Next(childComplexity), true
+
+	case "PaginationMeta.pages":
+		if e.complexity.PaginationMeta.Pages == nil {
+			break
+		}
+
+		return e.complexity.PaginationMeta.Pages(childComplexity), true
 
 	case "PaginationMeta.per_page":
 		if e.complexity.PaginationMeta.PerPage == nil {
@@ -1450,6 +1458,8 @@ func (ec *executionContext) fieldContext_DomainsResult_meta(_ context.Context, f
 				return ec.fieldContext_PaginationMeta_current_page(ctx, field)
 			case "total":
 				return ec.fieldContext_PaginationMeta_total(ctx, field)
+			case "pages":
+				return ec.fieldContext_PaginationMeta_pages(ctx, field)
 			case "next":
 				return ec.fieldContext_PaginationMeta_next(ctx, field)
 			case "prev":
@@ -1871,6 +1881,8 @@ func (ec *executionContext) fieldContext_LinksResult_meta(_ context.Context, fie
 				return ec.fieldContext_PaginationMeta_current_page(ctx, field)
 			case "total":
 				return ec.fieldContext_PaginationMeta_total(ctx, field)
+			case "pages":
+				return ec.fieldContext_PaginationMeta_pages(ctx, field)
 			case "next":
 				return ec.fieldContext_PaginationMeta_next(ctx, field)
 			case "prev":
@@ -2597,6 +2609,50 @@ func (ec *executionContext) _PaginationMeta_total(ctx context.Context, field gra
 }
 
 func (ec *executionContext) fieldContext_PaginationMeta_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginationMeta",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginationMeta_pages(ctx context.Context, field graphql.CollectedField, obj *gqmodel.PaginationMeta) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginationMeta_pages(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Pages, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaginationMeta_pages(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PaginationMeta",
 		Field:      field,
@@ -3674,6 +3730,8 @@ func (ec *executionContext) fieldContext_UserResult_meta(_ context.Context, fiel
 				return ec.fieldContext_PaginationMeta_current_page(ctx, field)
 			case "total":
 				return ec.fieldContext_PaginationMeta_total(ctx, field)
+			case "pages":
+				return ec.fieldContext_PaginationMeta_pages(ctx, field)
 			case "next":
 				return ec.fieldContext_PaginationMeta_next(ctx, field)
 			case "prev":
@@ -6019,6 +6077,11 @@ func (ec *executionContext) _PaginationMeta(ctx context.Context, sel ast.Selecti
 			}
 		case "total":
 			out.Values[i] = ec._PaginationMeta_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pages":
+			out.Values[i] = ec._PaginationMeta_pages(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

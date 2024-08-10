@@ -8,6 +8,7 @@ import (
 	"url-shortener/internal/repository"
 	"url-shortener/internal/service"
 	"url-shortener/pkg/db"
+	"url-shortener/pkg/middlewares"
 
 	gqlhandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -38,11 +39,13 @@ func main() {
 		UserService:   userService,
 	}
 
+	mux := http.NewServeMux()
 	srv := gqlhandler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &resolver}))
 
-	http.Handle("/playground", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	// Register your handlers with the mux
+	mux.Handle("/playground", middlewares.HandleCORS(playground.Handler("GraphQL playground", "/query")))
+	mux.Handle("/query", middlewares.HandleCORS(srv))
 
-	log.Println("Server started at :8080")
-	http.ListenAndServe(":8080", nil)
+	// Start the server
+	http.ListenAndServe(":8080", mux)
 }

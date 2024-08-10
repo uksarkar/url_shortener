@@ -2,6 +2,7 @@ type PaginationMeta {
     per_page: Int!
     current_page: Int!
     total: Int!
+    pages: Int!
     next: Int
     prev: Int
 }

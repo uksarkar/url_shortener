@@ -38,6 +38,8 @@ func (p *Paginator) BuildMeta(total int) *gqmodel.PaginationMeta {
 		totalPage = int(math.Ceil(float64(total) / float64(p.PerPage)))
 	}
 
+	meta.Pages = totalPage
+
 	// Handle Next page
 	if p.CurrentPage+1 <= totalPage {
 		nextPage := p.CurrentPage + 1

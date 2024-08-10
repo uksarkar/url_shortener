@@ -59,6 +59,7 @@ type PaginationMeta struct {
 	PerPage     int  `json:"per_page"`
 	CurrentPage int  `json:"current_page"`
 	Total       int  `json:"total"`
+	Pages       int  `json:"pages"`
 	Next        *int `json:"next,omitempty"`
 	Prev        *int `json:"prev,omitempty"`
 }
