@@ -6,54 +6,53 @@ package gq_resolver
 
 import (
 	"context"
-	"fmt"
 	"url-shortener/internal/graph"
 	"url-shortener/internal/graph/gqmodel"
 )
 
 // CreateDomain is the resolver for the createDomain field.
-func (r *mutationResolver) CreateDomain(ctx context.Context, input *gqmodel.CreateDomain) (*gqmodel.Domain, error) {
-	panic(fmt.Errorf("not implemented: CreateDomain - createDomain"))
+func (r *mutationResolver) CreateDomain(ctx context.Context, input gqmodel.CreateDomain) (*gqmodel.Domain, error) {
+	return r.DomainService.Create(input)
 }
 
 // UpdateDomain is the resolver for the updateDomain field.
-func (r *mutationResolver) UpdateDomain(ctx context.Context, input *gqmodel.CreateDomain) (*gqmodel.Domain, error) {
-	panic(fmt.Errorf("not implemented: UpdateDomain - updateDomain"))
+func (r *mutationResolver) UpdateDomain(ctx context.Context, id int, input gqmodel.CreateDomain) (*gqmodel.Domain, error) {
+	return r.DomainService.Update(id, input)
 }
 
 // DeleteDomain is the resolver for the deleteDomain field.
-func (r *mutationResolver) DeleteDomain(ctx context.Context, id *int) (string, error) {
-	panic(fmt.Errorf("not implemented: DeleteDomain - deleteDomain"))
+func (r *mutationResolver) DeleteDomain(ctx context.Context, id int) (string, error) {
+	return r.DomainService.Delete(id)
 }
 
 // CreateLink is the resolver for the createLink field.
 func (r *mutationResolver) CreateLink(ctx context.Context, input gqmodel.CreateLink) (*gqmodel.Link, error) {
-	panic(fmt.Errorf("not implemented: CreateLink - createLink"))
+	return r.LinkService.Create(input)
 }
 
 // UpdateLink is the resolver for the updateLink field.
-func (r *mutationResolver) UpdateLink(ctx context.Context, input gqmodel.CreateLink) (*gqmodel.Link, error) {
-	panic(fmt.Errorf("not implemented: UpdateLink - updateLink"))
+func (r *mutationResolver) UpdateLink(ctx context.Context, id int, input gqmodel.CreateLink) (*gqmodel.Link, error) {
+	return r.LinkService.Update(id, input)
 }
 
 // DeleteLink is the resolver for the deleteLink field.
-func (r *mutationResolver) DeleteLink(ctx context.Context, id *int) (string, error) {
-	panic(fmt.Errorf("not implemented: DeleteLink - deleteLink"))
+func (r *mutationResolver) DeleteLink(ctx context.Context, id int) (string, error) {
+	return r.LinkService.Delete(id)
 }
 
 // CreateUser is the resolver for the createUser field.
-func (r *mutationResolver) CreateUser(ctx context.Context, input *gqmodel.CreateUser) (*gqmodel.User, error) {
-	panic(fmt.Errorf("not implemented: CreateUser - createUser"))
+func (r *mutationResolver) CreateUser(ctx context.Context, input gqmodel.CreateUser) (*gqmodel.User, error) {
+	return r.UserService.Create(input)
 }
 
 // UpdateUser is the resolver for the updateUser field.
-func (r *mutationResolver) UpdateUser(ctx context.Context, input *gqmodel.CreateUser) (*gqmodel.User, error) {
-	panic(fmt.Errorf("not implemented: UpdateUser - updateUser"))
+func (r *mutationResolver) UpdateUser(ctx context.Context, id int, input gqmodel.CreateUser) (*gqmodel.User, error) {
+	return r.UserService.Update(id, input)
 }
 
 // DeleteUser is the resolver for the deleteUser field.
-func (r *mutationResolver) DeleteUser(ctx context.Context, id *int) (string, error) {
-	panic(fmt.Errorf("not implemented: DeleteUser - deleteUser"))
+func (r *mutationResolver) DeleteUser(ctx context.Context, id int) (string, error) {
+	return r.UserService.Delete(id)
 }
 
 // Mutation returns graph.MutationResolver implementation.

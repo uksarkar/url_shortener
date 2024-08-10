@@ -10,6 +10,7 @@ type CreateDomain struct {
 
 type CreateLink struct {
 	OriginalLink string  `json:"original_Link"`
+	IsActive     bool    `json:"is_active"`
 	Hash         *string `json:"hash,omitempty"`
 	DomainID     *int    `json:"domain_id,omitempty"`
 }

@@ -1,16 +1,16 @@
 type Mutation {
   # Domain
-  createDomain(input: CreateDomain): Domain!
-  updateDomain(input: CreateDomain): Domain!
-  deleteDomain(id: Int): String!
+  createDomain(input: CreateDomain!): Domain!
+  updateDomain(id: Int!, input: CreateDomain!): Domain!
+  deleteDomain(id: Int!): String!
 
   # Link
   createLink(input: CreateLink!): Link!
-  updateLink(input: CreateLink!): Link!
-  deleteLink(id: Int): String!
+  updateLink(id: Int!, input: CreateLink!): Link!
+  deleteLink(id: Int!): String!
 
   # User
-  createUser(input: CreateUser): User!
-  updateUser(input: CreateUser): User!
-  deleteUser(id: Int): String!
+  createUser(input: CreateUser!): User!
+  updateUser(id: Int!, input: CreateUser!): User!
+  deleteUser(id: Int!): String!
 }

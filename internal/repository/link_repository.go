@@ -24,28 +24,45 @@ func (repo *LinkRepository) Save(url gqmodel.Link) error {
 
 func (repo *LinkRepository) Find(id int) (*gqmodel.Link, error) {
 	var url gqmodel.Link
-	query := "SELECT id, original_url, hash, is_active, created_at, updated_at FROM urls WHERE id=$1"
+	query := "SELECT id, original_url, hash, is_active, created_at, updated_at FROM urls WHERE id=$1 AND deleted_at IS NULL"
 	err := repo.DB.QueryRow(query, id).Scan(&url.ID, &url.OriginalLink, &url.Hash, &url.IsActive, &url.CreatedAt, &url.UpdatedAt)
 	return &url, err
 }
 
 func (repo *LinkRepository) FindByHash(hash string) (gqmodel.Link, error) {
 	var url gqmodel.Link
-	query := "SELECT id, original_url, hash, is_active, created_at, updated_at FROM urls WHERE hash=$1"
+	query := "SELECT id, original_url, hash, is_active, created_at, updated_at FROM urls WHERE hash=$1 AND deleted_at IS NULL"
 	err := repo.DB.QueryRow(query, hash).Scan(&url.ID, &url.OriginalLink, &url.Hash, &url.IsActive, &url.CreatedAt, &url.UpdatedAt)
 	return url, err
 }
 
-func (repo *LinkRepository) Get(fields []string, pagination gqmodel.PaginationQuery) (*gqmodel.LinksResult, error) {
+func (r *LinkRepository) UpdateById(id int, url *gqmodel.Link) error {
+	query := "UPDATE urls (original_url, hash, domain_id, is_active) VALUES ($1, $2, $3, $4) WHERE id = $5 AND deleted_at IS NULL"
+	_, err := r.DB.Exec(query, url.OriginalLink, url.Hash, url.DomainID, url.IsActive, id)
+	return err
+}
+
+func (r *LinkRepository) DeleteById(id int) error {
+	_, err := r.DB.Exec("UPDATE urls SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL", id)
+	return err
+}
+
+func (repo *LinkRepository) Get(fields []string, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.LinksResult, error) {
 	sqlFields := "id,original_url,hash,is_active,created_at,updated_at"
 	if len(fields) > 0 {
 		sqlFields = strings.Join(fields, ",")
 	}
 
 	paginator := utils.NewPaginator(pagination.PerPage, pagination.CurrentPage)
+	ordering := utils.PrepareSortBy(sort)
 
 	// instead of select * should select only selected properties by the query
-	rows, err := repo.DB.Query(fmt.Sprintf("SELECT %s FROM urls LIMIT $1 OFFSET $2", sqlFields), paginator.Limit(), paginator.Offset())
+	rows, err := repo.DB.Query(
+		fmt.Sprintf("SELECT %s FROM urls WHERE deleted_at IS NULL ORDER BY $1 %s LIMIT $2 OFFSET $3", sqlFields, *ordering.Direction),
+		ordering.Column,
+		paginator.Limit(),
+		paginator.Offset(),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +88,7 @@ func (repo *LinkRepository) Get(fields []string, pagination gqmodel.PaginationQu
 	}
 
 	var total int
-	err = repo.DB.QueryRow("SELECT count(*) FROM urls").Scan(&total)
+	err = repo.DB.QueryRow("SELECT count(*) FROM urls WHERE deleted_at IS NULL").Scan(&total)
 	if err != nil {
 		return nil, err
 	}

@@ -6,39 +6,41 @@ package gq_resolver
 
 import (
 	"context"
-	"fmt"
 	"url-shortener/internal/graph"
 	"url-shortener/internal/graph/gqmodel"
 )
 
 // Links is the resolver for the Links field.
-func (r *queryResolver) Links(ctx context.Context, pagination gqmodel.PaginationQuery) (*gqmodel.LinksResult, error) {
-	panic(fmt.Errorf("not implemented: Links - Links"))
+func (r *queryResolver) Links(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.LinksResult, error) {
+	fields := r.GetNestedFieldsOf(ctx, "data")
+	return r.LinkService.Repo.Get(fields, pagination, sort)
 }
 
 // GetLink is the resolver for the getLink field.
 func (r *queryResolver) GetLink(ctx context.Context, id int) (*gqmodel.Link, error) {
-	panic(fmt.Errorf("not implemented: GetLink - getLink"))
+	return r.LinkService.Repo.Find(id)
 }
 
 // Domains is the resolver for the domains field.
 func (r *queryResolver) Domains(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.DomainsResult, error) {
-	panic(fmt.Errorf("not implemented: Domains - domains"))
+	fields := r.GetNestedFieldsOf(ctx, "data")
+	return r.DomainService.Repo.Get(fields, pagination, sort)
 }
 
 // GetDomain is the resolver for the getDomain field.
-func (r *queryResolver) GetDomain(ctx context.Context, id *int) (*gqmodel.Domain, error) {
-	panic(fmt.Errorf("not implemented: GetDomain - getDomain"))
+func (r *queryResolver) GetDomain(ctx context.Context, id int) (*gqmodel.Domain, error) {
+	return r.DomainService.Repo.Find(id)
 }
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.UserResult, error) {
-	panic(fmt.Errorf("not implemented: Users - users"))
+	fields := r.GetNestedFieldsOf(ctx, "data")
+	return r.UserService.Repo.Get(fields, pagination, sort)
 }
 
 // GetUser is the resolver for the getUser field.
-func (r *queryResolver) GetUser(ctx context.Context, id *int) (*gqmodel.User, error) {
-	panic(fmt.Errorf("not implemented: GetUser - getUser"))
+func (r *queryResolver) GetUser(ctx context.Context, id int) (*gqmodel.User, error) {
+	return r.UserService.Repo.Find(id)
 }
 
 // Query returns graph.QueryResolver implementation.

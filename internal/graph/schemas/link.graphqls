@@ -18,6 +18,7 @@ type LinksResult {
 # Form inputs
 input CreateLink {
   original_Link: String!
+  is_active: Boolean!
   hash: String
   domain_id: Int
 }

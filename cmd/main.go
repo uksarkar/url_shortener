@@ -21,9 +21,22 @@ func main() {
 
 	defer database.Close()
 
-	urlRepo := repository.NewLinkRepository(database)
-	linkService := service.NewLinkService(urlRepo)
-	resolver := gq_resolver.Resolver{LinkService: linkService}
+	// Repos
+	linkRepo := repository.NewLinkRepository(database)
+	domainRepo := repository.NewDomainRepository(database)
+	userRepo := repository.NewUserRepository(database)
+
+	// services
+	linkService := service.NewLinkService(linkRepo)
+	domainService := service.NewDomainService(domainRepo)
+	userService := service.NewUserService(userRepo)
+
+	// resolver
+	resolver := gq_resolver.Resolver{
+		LinkService:   linkService,
+		DomainService: domainService,
+		UserService:   userService,
+	}
 
 	srv := gqlhandler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &resolver}))
 

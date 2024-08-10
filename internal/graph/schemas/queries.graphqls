@@ -1,13 +1,13 @@
 type Query {
   # Link
-  Links(pagination: PaginationQuery!): LinksResult!
+  Links(pagination: PaginationQuery!, sort: SortBy): LinksResult!
   getLink(id: Int!): Link!
 
   # Domain
   domains(pagination: PaginationQuery!, sort: SortBy): DomainsResult!
-  getDomain(id: Int): Domain!
+  getDomain(id: Int!): Domain!
 
   # User
   users(pagination: PaginationQuery!, sort: SortBy): UserResult!
-  getUser(id: Int): User!
+  getUser(id: Int!): User!
 }

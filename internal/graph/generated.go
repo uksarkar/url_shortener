@@ -78,15 +78,15 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateDomain func(childComplexity int, input *gqmodel.CreateDomain) int
+		CreateDomain func(childComplexity int, input gqmodel.CreateDomain) int
 		CreateLink   func(childComplexity int, input gqmodel.CreateLink) int
-		CreateUser   func(childComplexity int, input *gqmodel.CreateUser) int
-		DeleteDomain func(childComplexity int, id *int) int
-		DeleteLink   func(childComplexity int, id *int) int
-		DeleteUser   func(childComplexity int, id *int) int
-		UpdateDomain func(childComplexity int, input *gqmodel.CreateDomain) int
-		UpdateLink   func(childComplexity int, input gqmodel.CreateLink) int
-		UpdateUser   func(childComplexity int, input *gqmodel.CreateUser) int
+		CreateUser   func(childComplexity int, input gqmodel.CreateUser) int
+		DeleteDomain func(childComplexity int, id int) int
+		DeleteLink   func(childComplexity int, id int) int
+		DeleteUser   func(childComplexity int, id int) int
+		UpdateDomain func(childComplexity int, id int, input gqmodel.CreateDomain) int
+		UpdateLink   func(childComplexity int, id int, input gqmodel.CreateLink) int
+		UpdateUser   func(childComplexity int, id int, input gqmodel.CreateUser) int
 	}
 
 	PaginationMeta struct {
@@ -99,10 +99,10 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Domains   func(childComplexity int, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) int
-		GetDomain func(childComplexity int, id *int) int
+		GetDomain func(childComplexity int, id int) int
 		GetLink   func(childComplexity int, id int) int
-		GetUser   func(childComplexity int, id *int) int
-		Links     func(childComplexity int, pagination gqmodel.PaginationQuery) int
+		GetUser   func(childComplexity int, id int) int
+		Links     func(childComplexity int, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) int
 		Users     func(childComplexity int, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) int
 	}
 
@@ -124,23 +124,23 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateDomain(ctx context.Context, input *gqmodel.CreateDomain) (*gqmodel.Domain, error)
-	UpdateDomain(ctx context.Context, input *gqmodel.CreateDomain) (*gqmodel.Domain, error)
-	DeleteDomain(ctx context.Context, id *int) (string, error)
+	CreateDomain(ctx context.Context, input gqmodel.CreateDomain) (*gqmodel.Domain, error)
+	UpdateDomain(ctx context.Context, id int, input gqmodel.CreateDomain) (*gqmodel.Domain, error)
+	DeleteDomain(ctx context.Context, id int) (string, error)
 	CreateLink(ctx context.Context, input gqmodel.CreateLink) (*gqmodel.Link, error)
-	UpdateLink(ctx context.Context, input gqmodel.CreateLink) (*gqmodel.Link, error)
-	DeleteLink(ctx context.Context, id *int) (string, error)
-	CreateUser(ctx context.Context, input *gqmodel.CreateUser) (*gqmodel.User, error)
-	UpdateUser(ctx context.Context, input *gqmodel.CreateUser) (*gqmodel.User, error)
-	DeleteUser(ctx context.Context, id *int) (string, error)
+	UpdateLink(ctx context.Context, id int, input gqmodel.CreateLink) (*gqmodel.Link, error)
+	DeleteLink(ctx context.Context, id int) (string, error)
+	CreateUser(ctx context.Context, input gqmodel.CreateUser) (*gqmodel.User, error)
+	UpdateUser(ctx context.Context, id int, input gqmodel.CreateUser) (*gqmodel.User, error)
+	DeleteUser(ctx context.Context, id int) (string, error)
 }
 type QueryResolver interface {
-	Links(ctx context.Context, pagination gqmodel.PaginationQuery) (*gqmodel.LinksResult, error)
+	Links(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.LinksResult, error)
 	GetLink(ctx context.Context, id int) (*gqmodel.Link, error)
 	Domains(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.DomainsResult, error)
-	GetDomain(ctx context.Context, id *int) (*gqmodel.Domain, error)
+	GetDomain(ctx context.Context, id int) (*gqmodel.Domain, error)
 	Users(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.UserResult, error)
-	GetUser(ctx context.Context, id *int) (*gqmodel.User, error)
+	GetUser(ctx context.Context, id int) (*gqmodel.User, error)
 }
 
 type executableSchema struct {
@@ -298,7 +298,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateDomain(childComplexity, args["input"].(*gqmodel.CreateDomain)), true
+		return e.complexity.Mutation.CreateDomain(childComplexity, args["input"].(gqmodel.CreateDomain)), true
 
 	case "Mutation.createLink":
 		if e.complexity.Mutation.CreateLink == nil {
@@ -322,7 +322,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(*gqmodel.CreateUser)), true
+		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(gqmodel.CreateUser)), true
 
 	case "Mutation.deleteDomain":
 		if e.complexity.Mutation.DeleteDomain == nil {
@@ -334,7 +334,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteDomain(childComplexity, args["id"].(*int)), true
+		return e.complexity.Mutation.DeleteDomain(childComplexity, args["id"].(int)), true
 
 	case "Mutation.deleteLink":
 		if e.complexity.Mutation.DeleteLink == nil {
@@ -346,7 +346,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteLink(childComplexity, args["id"].(*int)), true
+		return e.complexity.Mutation.DeleteLink(childComplexity, args["id"].(int)), true
 
 	case "Mutation.deleteUser":
 		if e.complexity.Mutation.DeleteUser == nil {
@@ -358,7 +358,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteUser(childComplexity, args["id"].(*int)), true
+		return e.complexity.Mutation.DeleteUser(childComplexity, args["id"].(int)), true
 
 	case "Mutation.updateDomain":
 		if e.complexity.Mutation.UpdateDomain == nil {
@@ -370,7 +370,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateDomain(childComplexity, args["input"].(*gqmodel.CreateDomain)), true
+		return e.complexity.Mutation.UpdateDomain(childComplexity, args["id"].(int), args["input"].(gqmodel.CreateDomain)), true
 
 	case "Mutation.updateLink":
 		if e.complexity.Mutation.UpdateLink == nil {
@@ -382,7 +382,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateLink(childComplexity, args["input"].(gqmodel.CreateLink)), true
+		return e.complexity.Mutation.UpdateLink(childComplexity, args["id"].(int), args["input"].(gqmodel.CreateLink)), true
 
 	case "Mutation.updateUser":
 		if e.complexity.Mutation.UpdateUser == nil {
@@ -394,7 +394,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateUser(childComplexity, args["input"].(*gqmodel.CreateUser)), true
+		return e.complexity.Mutation.UpdateUser(childComplexity, args["id"].(int), args["input"].(gqmodel.CreateUser)), true
 
 	case "PaginationMeta.current_page":
 		if e.complexity.PaginationMeta.CurrentPage == nil {
@@ -453,7 +453,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetDomain(childComplexity, args["id"].(*int)), true
+		return e.complexity.Query.GetDomain(childComplexity, args["id"].(int)), true
 
 	case "Query.getLink":
 		if e.complexity.Query.GetLink == nil {
@@ -477,7 +477,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetUser(childComplexity, args["id"].(*int)), true
+		return e.complexity.Query.GetUser(childComplexity, args["id"].(int)), true
 
 	case "Query.Links":
 		if e.complexity.Query.Links == nil {
@@ -489,7 +489,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Links(childComplexity, args["pagination"].(gqmodel.PaginationQuery)), true
+		return e.complexity.Query.Links(childComplexity, args["pagination"].(gqmodel.PaginationQuery), args["sort"].(*gqmodel.SortBy)), true
 
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
@@ -711,10 +711,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_createDomain_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *gqmodel.CreateDomain
+	var arg0 gqmodel.CreateDomain
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOCreateDomain2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐCreateDomain(ctx, tmp)
+		arg0, err = ec.unmarshalNCreateDomain2urlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐCreateDomain(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -741,10 +741,10 @@ func (ec *executionContext) field_Mutation_createLink_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *gqmodel.CreateUser
+	var arg0 gqmodel.CreateUser
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOCreateUser2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐCreateUser(ctx, tmp)
+		arg0, err = ec.unmarshalNCreateUser2urlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐCreateUser(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -756,10 +756,10 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_deleteDomain_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *int
+	var arg0 int
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -771,10 +771,10 @@ func (ec *executionContext) field_Mutation_deleteDomain_args(ctx context.Context
 func (ec *executionContext) field_Mutation_deleteLink_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *int
+	var arg0 int
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -786,10 +786,10 @@ func (ec *executionContext) field_Mutation_deleteLink_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_deleteUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *int
+	var arg0 int
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -801,45 +801,72 @@ func (ec *executionContext) field_Mutation_deleteUser_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_updateDomain_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *gqmodel.CreateDomain
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOCreateDomain2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐCreateDomain(ctx, tmp)
+	var arg0 int
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg0
+	args["id"] = arg0
+	var arg1 gqmodel.CreateDomain
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNCreateDomain2urlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐCreateDomain(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
 func (ec *executionContext) field_Mutation_updateLink_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 gqmodel.CreateLink
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateLink2urlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐCreateLink(ctx, tmp)
+	var arg0 int
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg0
+	args["id"] = arg0
+	var arg1 gqmodel.CreateLink
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNCreateLink2urlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐCreateLink(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
 func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *gqmodel.CreateUser
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOCreateUser2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐCreateUser(ctx, tmp)
+	var arg0 int
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg0
+	args["id"] = arg0
+	var arg1 gqmodel.CreateUser
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNCreateUser2urlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐCreateUser(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
@@ -855,6 +882,15 @@ func (ec *executionContext) field_Query_Links_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["pagination"] = arg0
+	var arg1 *gqmodel.SortBy
+	if tmp, ok := rawArgs["sort"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+		arg1, err = ec.unmarshalOSortBy2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐSortBy(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["sort"] = arg1
 	return args, nil
 }
 
@@ -900,10 +936,10 @@ func (ec *executionContext) field_Query_domains_args(ctx context.Context, rawArg
 func (ec *executionContext) field_Query_getDomain_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *int
+	var arg0 int
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -930,10 +966,10 @@ func (ec *executionContext) field_Query_getLink_args(ctx context.Context, rawArg
 func (ec *executionContext) field_Query_getUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *int
+	var arg0 int
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1860,7 +1896,7 @@ func (ec *executionContext) _Mutation_createDomain(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateDomain(rctx, fc.Args["input"].(*gqmodel.CreateDomain))
+		return ec.resolvers.Mutation().CreateDomain(rctx, fc.Args["input"].(gqmodel.CreateDomain))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1931,7 +1967,7 @@ func (ec *executionContext) _Mutation_updateDomain(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateDomain(rctx, fc.Args["input"].(*gqmodel.CreateDomain))
+		return ec.resolvers.Mutation().UpdateDomain(rctx, fc.Args["id"].(int), fc.Args["input"].(gqmodel.CreateDomain))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2002,7 +2038,7 @@ func (ec *executionContext) _Mutation_deleteDomain(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteDomain(rctx, fc.Args["id"].(*int))
+		return ec.resolvers.Mutation().DeleteDomain(rctx, fc.Args["id"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2128,7 +2164,7 @@ func (ec *executionContext) _Mutation_updateLink(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateLink(rctx, fc.Args["input"].(gqmodel.CreateLink))
+		return ec.resolvers.Mutation().UpdateLink(rctx, fc.Args["id"].(int), fc.Args["input"].(gqmodel.CreateLink))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2199,7 +2235,7 @@ func (ec *executionContext) _Mutation_deleteLink(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteLink(rctx, fc.Args["id"].(*int))
+		return ec.resolvers.Mutation().DeleteLink(rctx, fc.Args["id"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2254,7 +2290,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateUser(rctx, fc.Args["input"].(*gqmodel.CreateUser))
+		return ec.resolvers.Mutation().CreateUser(rctx, fc.Args["input"].(gqmodel.CreateUser))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2327,7 +2363,7 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateUser(rctx, fc.Args["input"].(*gqmodel.CreateUser))
+		return ec.resolvers.Mutation().UpdateUser(rctx, fc.Args["id"].(int), fc.Args["input"].(gqmodel.CreateUser))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2400,7 +2436,7 @@ func (ec *executionContext) _Mutation_deleteUser(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteUser(rctx, fc.Args["id"].(*int))
+		return ec.resolvers.Mutation().DeleteUser(rctx, fc.Args["id"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2669,7 +2705,7 @@ func (ec *executionContext) _Query_Links(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Links(rctx, fc.Args["pagination"].(gqmodel.PaginationQuery))
+		return ec.resolvers.Query().Links(rctx, fc.Args["pagination"].(gqmodel.PaginationQuery), fc.Args["sort"].(*gqmodel.SortBy))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2862,7 +2898,7 @@ func (ec *executionContext) _Query_getDomain(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetDomain(rctx, fc.Args["id"].(*int))
+		return ec.resolvers.Query().GetDomain(rctx, fc.Args["id"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2994,7 +3030,7 @@ func (ec *executionContext) _Query_getUser(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetUser(rctx, fc.Args["id"].(*int))
+		return ec.resolvers.Query().GetUser(rctx, fc.Args["id"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5470,7 +5506,7 @@ func (ec *executionContext) unmarshalInputCreateLink(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"original_Link", "hash", "domain_id"}
+	fieldsInOrder := [...]string{"original_Link", "is_active", "hash", "domain_id"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5484,6 +5520,13 @@ func (ec *executionContext) unmarshalInputCreateLink(ctx context.Context, obj in
 				return it, err
 			}
 			it.OriginalLink = data
+		case "is_active":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("is_active"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsActive = data
 		case "hash":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hash"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -6644,8 +6687,18 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNCreateDomain2urlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐCreateDomain(ctx context.Context, v interface{}) (gqmodel.CreateDomain, error) {
+	res, err := ec.unmarshalInputCreateDomain(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCreateLink2urlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐCreateLink(ctx context.Context, v interface{}) (gqmodel.CreateLink, error) {
 	res, err := ec.unmarshalInputCreateLink(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCreateUser2urlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐCreateUser(ctx context.Context, v interface{}) (gqmodel.CreateUser, error) {
+	res, err := ec.unmarshalInputCreateUser(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -7187,22 +7240,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
-}
-
-func (ec *executionContext) unmarshalOCreateDomain2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐCreateDomain(ctx context.Context, v interface{}) (*gqmodel.CreateDomain, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputCreateDomain(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOCreateUser2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐCreateUser(ctx context.Context, v interface{}) (*gqmodel.CreateUser, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputCreateUser(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {

@@ -13,7 +13,9 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	LinkService *service.LinkService
+	LinkService   *service.LinkService
+	DomainService *service.DomainService
+	UserService   *service.UserService
 }
 
 func (r *Resolver) GetRequestedFields(ctx context.Context) []string {
