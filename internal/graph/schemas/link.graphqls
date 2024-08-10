@@ -1,7 +1,7 @@
 # Models
 type Link {
   id: Int!
-  original_Link: String!
+  original_link: String!
   hash: String!
   domain_id: Int
   is_active: Boolean!
@@ -14,10 +14,9 @@ type LinksResult {
   meta: PaginationMeta!
 }
 
-
 # Form inputs
 input CreateLink {
-  original_Link: String!
+  original_link: String!
   is_active: Boolean!
   hash: String
   domain_id: Int

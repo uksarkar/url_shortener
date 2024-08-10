@@ -15,13 +15,13 @@ func ValidateCreateUser(input *gqmodel.CreateUser) error {
 }
 
 func ValidateCreateDomain(input *gqmodel.CreateDomain) error {
-	return validation.ValidateStruct(&input,
+	return validation.ValidateStruct(input,
 		validation.Field(&input.Host, validation.Required, is.Host),
 	)
 }
 
 func ValidateCreateLink(input *gqmodel.CreateLink) error {
-	return validation.ValidateStruct(&input,
+	return validation.ValidateStruct(input,
 		validation.Field(&input.Hash, validation.Length(4, 60)),
 		validation.Field(&input.OriginalLink, validation.Required, is.URL),
 	)

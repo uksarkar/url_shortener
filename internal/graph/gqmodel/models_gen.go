@@ -9,7 +9,7 @@ type CreateDomain struct {
 }
 
 type CreateLink struct {
-	OriginalLink string  `json:"original_Link"`
+	OriginalLink string  `json:"original_link"`
 	IsActive     bool    `json:"is_active"`
 	Hash         *string `json:"hash,omitempty"`
 	DomainID     *int    `json:"domain_id,omitempty"`
@@ -39,7 +39,7 @@ type DomainsResult struct {
 
 type Link struct {
 	ID           int    `json:"id"`
-	OriginalLink string `json:"original_Link"`
+	OriginalLink string `json:"original_link"`
 	Hash         string `json:"hash"`
 	DomainID     *int   `json:"domain_id,omitempty"`
 	IsActive     bool   `json:"is_active"`

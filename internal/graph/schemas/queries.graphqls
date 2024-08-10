@@ -1,6 +1,6 @@
 type Query {
   # Link
-  Links(pagination: PaginationQuery!, sort: SortBy): LinksResult!
+  links(pagination: PaginationQuery!, sort: SortBy): LinksResult!
   getLink(id: Int!): Link!
 
   # Domain

@@ -4,7 +4,7 @@ CREATE DATABASE url_shortener;
 
 CREATE TABLE links (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    original_url TEXT NOT NULL,
+    original_link TEXT NOT NULL,
     hash TEXT NOT NULL UNIQUE,
     domain_id int DEFAULT NULL,
     is_active boolean NOT NULL DEFAULT TRUE,
@@ -18,6 +18,7 @@ CREATE INDEX links_updated_at_idx ON links(updated_at);
 CREATE INDEX links_deleted_at_idx ON links(deleted_at);
 CREATE INDEX links_is_active_idx ON links(is_active);
 CREATE INDEX links_domain_id_idx ON links(domain_id);
+CREATE INDEX links_hash_idx ON links(hash);
 
 CREATE TABLE users (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

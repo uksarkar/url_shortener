@@ -260,7 +260,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Link.IsActive(childComplexity), true
 
-	case "Link.original_Link":
+	case "Link.original_link":
 		if e.complexity.Link.OriginalLink == nil {
 			break
 		}
@@ -479,12 +479,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetUser(childComplexity, args["id"].(int)), true
 
-	case "Query.Links":
+	case "Query.links":
 		if e.complexity.Query.Links == nil {
 			break
 		}
 
-		args, err := ec.field_Query_Links_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_links_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -870,30 +870,6 @@ func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_Links_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 gqmodel.PaginationQuery
-	if tmp, ok := rawArgs["pagination"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-		arg0, err = ec.unmarshalNPaginationQuery2urlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐPaginationQuery(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["pagination"] = arg0
-	var arg1 *gqmodel.SortBy
-	if tmp, ok := rawArgs["sort"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
-		arg1, err = ec.unmarshalOSortBy2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐSortBy(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["sort"] = arg1
-	return args, nil
-}
-
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -975,6 +951,30 @@ func (ec *executionContext) field_Query_getUser_args(ctx context.Context, rawArg
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_links_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqmodel.PaginationQuery
+	if tmp, ok := rawArgs["pagination"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+		arg0, err = ec.unmarshalNPaginationQuery2urlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐPaginationQuery(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pagination"] = arg0
+	var arg1 *gqmodel.SortBy
+	if tmp, ok := rawArgs["sort"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+		arg1, err = ec.unmarshalOSortBy2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐSortBy(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["sort"] = arg1
 	return args, nil
 }
 
@@ -1505,8 +1505,8 @@ func (ec *executionContext) fieldContext_Link_id(_ context.Context, field graphq
 	return fc, nil
 }
 
-func (ec *executionContext) _Link_original_Link(ctx context.Context, field graphql.CollectedField, obj *gqmodel.Link) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Link_original_Link(ctx, field)
+func (ec *executionContext) _Link_original_link(ctx context.Context, field graphql.CollectedField, obj *gqmodel.Link) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Link_original_link(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1536,7 +1536,7 @@ func (ec *executionContext) _Link_original_Link(ctx context.Context, field graph
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Link_original_Link(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Link_original_link(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Link",
 		Field:      field,
@@ -1807,8 +1807,8 @@ func (ec *executionContext) fieldContext_LinksResult_data(_ context.Context, fie
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Link_id(ctx, field)
-			case "original_Link":
-				return ec.fieldContext_Link_original_Link(ctx, field)
+			case "original_link":
+				return ec.fieldContext_Link_original_link(ctx, field)
 			case "hash":
 				return ec.fieldContext_Link_hash(ctx, field)
 			case "domain_id":
@@ -2120,8 +2120,8 @@ func (ec *executionContext) fieldContext_Mutation_createLink(ctx context.Context
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Link_id(ctx, field)
-			case "original_Link":
-				return ec.fieldContext_Link_original_Link(ctx, field)
+			case "original_link":
+				return ec.fieldContext_Link_original_link(ctx, field)
 			case "hash":
 				return ec.fieldContext_Link_hash(ctx, field)
 			case "domain_id":
@@ -2191,8 +2191,8 @@ func (ec *executionContext) fieldContext_Mutation_updateLink(ctx context.Context
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Link_id(ctx, field)
-			case "original_Link":
-				return ec.fieldContext_Link_original_Link(ctx, field)
+			case "original_link":
+				return ec.fieldContext_Link_original_link(ctx, field)
 			case "hash":
 				return ec.fieldContext_Link_hash(ctx, field)
 			case "domain_id":
@@ -2691,8 +2691,8 @@ func (ec *executionContext) fieldContext_PaginationMeta_prev(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_Links(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_Links(ctx, field)
+func (ec *executionContext) _Query_links(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_links(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2722,7 +2722,7 @@ func (ec *executionContext) _Query_Links(ctx context.Context, field graphql.Coll
 	return ec.marshalNLinksResult2ᚖurlᚑshortenerᚋinternalᚋgraphᚋgqmodelᚐLinksResult(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_Links(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_links(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -2745,7 +2745,7 @@ func (ec *executionContext) fieldContext_Query_Links(ctx context.Context, field 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_Links_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_links_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -2793,8 +2793,8 @@ func (ec *executionContext) fieldContext_Query_getLink(ctx context.Context, fiel
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Link_id(ctx, field)
-			case "original_Link":
-				return ec.fieldContext_Link_original_Link(ctx, field)
+			case "original_link":
+				return ec.fieldContext_Link_original_link(ctx, field)
 			case "hash":
 				return ec.fieldContext_Link_hash(ctx, field)
 			case "domain_id":
@@ -5506,15 +5506,15 @@ func (ec *executionContext) unmarshalInputCreateLink(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"original_Link", "is_active", "hash", "domain_id"}
+	fieldsInOrder := [...]string{"original_link", "is_active", "hash", "domain_id"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "original_Link":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("original_Link"))
+		case "original_link":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("original_link"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
@@ -5797,8 +5797,8 @@ func (ec *executionContext) _Link(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "original_Link":
-			out.Values[i] = ec._Link_original_Link(ctx, field, obj)
+		case "original_link":
+			out.Values[i] = ec._Link_original_link(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6068,7 +6068,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "Links":
+		case "links":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -6077,7 +6077,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_Links(ctx, field)
+				res = ec._Query_links(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
