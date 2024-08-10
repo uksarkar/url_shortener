@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"time"
 	"url-shortener/internal/graph/gqmodel"
 	"url-shortener/internal/repository"
@@ -30,15 +31,24 @@ func (s *DomainService) Create(input gqmodel.CreateDomain) (*gqmodel.Domain, err
 }
 
 func (s *DomainService) Update(id int, input gqmodel.CreateDomain) (*gqmodel.Domain, error) {
+	exists, err := s.Repo.ExistsId(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if !exists {
+		return nil, errors.New("domain not found")
+	}
+
 	domain := gqmodel.Domain{
 		ID:         id,
 		IsActive:   input.IsActive,
 		Host:       input.Host,
 		ForceHTTPS: input.ForceHTTPS,
-		UpdatedAt:  time.Now().String(),
+		UpdatedAt:  time.Now().Format(time.RFC3339),
 	}
 
-	err := s.Repo.UpdateById(id, &domain)
+	err = s.Repo.UpdateById(id, &domain)
 
 	if err != nil {
 		return nil, err
@@ -48,6 +58,15 @@ func (s *DomainService) Update(id int, input gqmodel.CreateDomain) (*gqmodel.Dom
 }
 
 func (s *DomainService) Delete(id int) (string, error) {
-	err := s.Repo.DeleteById(id)
+	exists, err := s.Repo.ExistsId(id)
+	if err != nil {
+		return "", err
+	}
+
+	if !exists {
+		return "", errors.New("domain not found")
+	}
+
+	err = s.Repo.DeleteById(id)
 	return "Domain deleted", err
 }

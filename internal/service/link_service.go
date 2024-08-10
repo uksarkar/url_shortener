@@ -3,6 +3,7 @@ package service
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"errors"
 	"strings"
 	"time"
 	"url-shortener/internal/graph/gqmodel"
@@ -42,7 +43,16 @@ func (s *LinkService) Create(input gqmodel.CreateLink) (*gqmodel.Link, error) {
 }
 
 func (s *LinkService) Update(id int, input gqmodel.CreateLink) (*gqmodel.Link, error) {
-	err := utils.ValidateCreateLink(&input)
+	exists, err := s.Repo.ExistsId(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if !exists {
+		return nil, errors.New("link not found")
+	}
+
+	err = utils.ValidateCreateLink(&input)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +65,7 @@ func (s *LinkService) Update(id int, input gqmodel.CreateLink) (*gqmodel.Link, e
 		DomainID:     input.DomainID,
 		Hash:         hash,
 		IsActive:     input.IsActive,
-		UpdatedAt:    time.Now().String(),
+		UpdatedAt:    time.Now().Format(time.RFC3339),
 	}
 
 	err = s.Repo.UpdateById(id, &domain)
@@ -68,7 +78,16 @@ func (s *LinkService) Update(id int, input gqmodel.CreateLink) (*gqmodel.Link, e
 }
 
 func (s *LinkService) Delete(id int) (string, error) {
-	err := s.Repo.DeleteById(id)
+	exists, err := s.Repo.ExistsId(id)
+	if err != nil {
+		return "", err
+	}
+
+	if !exists {
+		return "", errors.New("link not found")
+	}
+
+	err = s.Repo.DeleteById(id)
 	return "Link deleted", err
 }
 

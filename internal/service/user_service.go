@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"time"
 	"url-shortener/internal/graph/gqmodel"
 	"url-shortener/internal/repository"
@@ -30,7 +31,16 @@ func (s *UserService) Create(input gqmodel.CreateUser) (*gqmodel.User, error) {
 }
 
 func (s *UserService) Update(id int, input gqmodel.CreateUser) (*gqmodel.User, error) {
-	err := utils.ValidateCreateUser(&input)
+	exists, err := s.Repo.ExistsId(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if !exists {
+		return nil, errors.New("user not found")
+	}
+
+	err = utils.ValidateCreateUser(&input)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +50,7 @@ func (s *UserService) Update(id int, input gqmodel.CreateUser) (*gqmodel.User, e
 		IsActive:  input.IsActive,
 		Name:      input.Name,
 		Email:     input.Email,
-		UpdatedAt: time.Now().String(),
+		UpdatedAt: time.Now().Format(time.RFC3339),
 	}
 
 	err = s.Repo.UpdateById(id, &user)
@@ -53,6 +63,15 @@ func (s *UserService) Update(id int, input gqmodel.CreateUser) (*gqmodel.User, e
 }
 
 func (s *UserService) Delete(id int) (string, error) {
-	err := s.Repo.DeleteById(id)
+	exists, err := s.Repo.ExistsId(id)
+	if err != nil {
+		return "", err
+	}
+
+	if !exists {
+		return "", errors.New("user not found")
+	}
+
+	err = s.Repo.DeleteById(id)
 	return "User deleted", err
 }

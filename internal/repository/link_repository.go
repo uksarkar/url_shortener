@@ -37,9 +37,20 @@ func (repo *LinkRepository) FindByHash(hash string) (gqmodel.Link, error) {
 }
 
 func (r *LinkRepository) UpdateById(id int, link *gqmodel.Link) error {
-	query := "UPDATE links (original_link, hash, domain_id, is_active) VALUES ($1, $2, $3, $4) WHERE id = $5 AND deleted_at IS NULL"
-	_, err := r.DB.Exec(query, link.OriginalLink, link.Hash, link.DomainID, link.IsActive, id)
+	query := `UPDATE links
+			SET original_link = $1,
+				hash = $2,
+				domain_id = $3,
+				is_active = $4,
+				updated_at = $5
+			WHERE id = $6
+				AND deleted_at IS NULL`
+	_, err := r.DB.Exec(query, link.OriginalLink, link.Hash, link.DomainID, link.IsActive, link.UpdatedAt, id)
 	return err
+}
+
+func (r *LinkRepository) ExistsId(id int) (bool, error) {
+	return ExistsId(r.DB, "links", id)
 }
 
 func (r *LinkRepository) DeleteById(id int) error {

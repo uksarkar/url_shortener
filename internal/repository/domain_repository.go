@@ -37,7 +37,13 @@ func (repo *DomainRepository) Find(id int) (*gqmodel.Domain, error) {
 }
 
 func (r *DomainRepository) UpdateById(id int, domain *gqmodel.Domain) error {
-	query := "UPDATE domains (is_active, host, force_https, updated_at) VALUES ($1, $2, $3, $4) WHERE id = $5 AND deleted_at IS NULL"
+	query := `UPDATE domains
+		SET is_active = $1,
+			host = $2,
+			force_https = $3,
+			updated_at = $4
+		WHERE id = $5
+			AND deleted_at IS NULL`
 	_, err := r.DB.Exec(query, domain.IsActive, domain.Host, domain.ForceHTTPS, domain.UpdatedAt, id)
 	return err
 }
@@ -45,6 +51,10 @@ func (r *DomainRepository) UpdateById(id int, domain *gqmodel.Domain) error {
 func (r *DomainRepository) DeleteById(id int) error {
 	_, err := r.DB.Exec("UPDATE domains SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL", id)
 	return err
+}
+
+func (r *DomainRepository) ExistsId(id int) (bool, error) {
+	return ExistsId(r.DB, "domains", id)
 }
 
 func (repo *DomainRepository) Get(fields []string, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.DomainsResult, error) {

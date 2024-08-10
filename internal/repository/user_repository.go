@@ -39,14 +39,25 @@ func (repo *UserRepository) Save(user gqmodel.CreateUser) (gqmodel.User, error) 
 func (repo *UserRepository) Find(id int) (*gqmodel.User, error) {
 	var user gqmodel.User
 	query := "SELECT id, is_active, name, email, is_admin, created_at, updated_at FROM users WHERE id=$1 AND deleted_at IS NULL"
-	err := repo.DB.QueryRow(query, id).Scan(&user.ID, &user.IsActive, &user.Name, &user.IsActive, &user.CreatedAt, &user.UpdatedAt)
+	err := repo.DB.QueryRow(query, id).Scan(&user.ID, &user.IsActive, &user.Email, &user.Name, &user.IsActive, &user.CreatedAt, &user.UpdatedAt)
 	return &user, err
 }
 
 func (r *UserRepository) UpdateById(id int, user *gqmodel.User) error {
-	query := "UPDATE users (is_active, name, email, is_admin, updated_at) VALUES ($1, $2, $3, $4) WHERE id = $5 AND deleted_at IS NULL"
-	_, err := r.DB.Exec(query, user.IsActive, user.Name, user.IsAdmin, user.UpdatedAt, id)
+	query := `UPDATE users
+				SET is_active = $1,
+					name = $2,
+					email = $3,
+					is_admin = $4,
+					updated_at = $5
+				WHERE id = $6
+					AND deleted_at IS NULL`
+	_, err := r.DB.Exec(query, user.IsActive, user.Name, user.Email, user.IsAdmin, user.UpdatedAt, id)
 	return err
+}
+
+func (r *UserRepository) ExistsId(id int) (bool, error) {
+	return ExistsId(r.DB, "users", id)
 }
 
 func (r *UserRepository) DeleteById(id int) error {
