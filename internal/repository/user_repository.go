@@ -74,10 +74,21 @@ func (repo *UserRepository) Get(fields []string, pagination gqmodel.PaginationQu
 	paginator := utils.NewPaginator(pagination.PerPage, pagination.CurrentPage)
 	ordering := utils.PrepareSortBy(sort)
 
+	if !strings.Contains(sqlFields, *ordering.Column) {
+		column := "id"
+		ordering.Column = &column
+	}
+
+	q := fmt.Sprintf(
+		"SELECT %s FROM users WHERE deleted_at IS NULL ORDER BY %s %s LIMIT $1 OFFSET $2",
+		*ordering.Column,
+		sqlFields,
+		*ordering.Direction,
+	)
+
 	// instead of select * should select only selected properties by the query
 	rows, err := repo.DB.Query(
-		fmt.Sprintf("SELECT %s FROM users WHERE deleted_at IS NULL ORDER BY $1 %s LIMIT $2 OFFSET $3", sqlFields, *ordering.Direction),
-		ordering.Column,
+		q,
 		paginator.Limit(),
 		paginator.Offset(),
 	)
