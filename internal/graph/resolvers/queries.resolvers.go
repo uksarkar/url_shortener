@@ -11,9 +11,9 @@ import (
 )
 
 // Links is the resolver for the Links field.
-func (r *queryResolver) Links(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.LinksResult, error) {
+func (r *queryResolver) Links(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) (*gqmodel.LinksResult, error) {
 	fields := r.GetNestedFieldsOf(ctx, "data")
-	return r.LinkService.Repo.Get(fields, pagination, sort)
+	return r.LinkService.Repo.Get(fields, pagination, sort, q)
 }
 
 // GetLink is the resolver for the getLink field.
@@ -22,7 +22,7 @@ func (r *queryResolver) GetLink(ctx context.Context, id int) (*gqmodel.Link, err
 }
 
 // Domains is the resolver for the domains field.
-func (r *queryResolver) Domains(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.DomainsResult, error) {
+func (r *queryResolver) Domains(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) (*gqmodel.DomainsResult, error) {
 	fields := r.GetNestedFieldsOf(ctx, "data")
 	return r.DomainService.Repo.Get(fields, pagination, sort)
 }
@@ -33,7 +33,7 @@ func (r *queryResolver) GetDomain(ctx context.Context, id int) (*gqmodel.Domain,
 }
 
 // Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.UserResult, error) {
+func (r *queryResolver) Users(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) (*gqmodel.UserResult, error) {
 	fields := r.GetNestedFieldsOf(ctx, "data")
 	return r.UserService.Repo.Get(fields, pagination, sort)
 }

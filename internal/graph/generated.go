@@ -99,12 +99,12 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Domains   func(childComplexity int, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) int
+		Domains   func(childComplexity int, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) int
 		GetDomain func(childComplexity int, id int) int
 		GetLink   func(childComplexity int, id int) int
 		GetUser   func(childComplexity int, id int) int
-		Links     func(childComplexity int, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) int
-		Users     func(childComplexity int, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) int
+		Links     func(childComplexity int, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) int
+		Users     func(childComplexity int, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) int
 	}
 
 	User struct {
@@ -136,11 +136,11 @@ type MutationResolver interface {
 	DeleteUser(ctx context.Context, id int) (string, error)
 }
 type QueryResolver interface {
-	Links(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.LinksResult, error)
+	Links(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) (*gqmodel.LinksResult, error)
 	GetLink(ctx context.Context, id int) (*gqmodel.Link, error)
-	Domains(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.DomainsResult, error)
+	Domains(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) (*gqmodel.DomainsResult, error)
 	GetDomain(ctx context.Context, id int) (*gqmodel.Domain, error)
-	Users(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.UserResult, error)
+	Users(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) (*gqmodel.UserResult, error)
 	GetUser(ctx context.Context, id int) (*gqmodel.User, error)
 }
 
@@ -449,7 +449,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Domains(childComplexity, args["pagination"].(gqmodel.PaginationQuery), args["sort"].(*gqmodel.SortBy)), true
+		return e.complexity.Query.Domains(childComplexity, args["pagination"].(gqmodel.PaginationQuery), args["sort"].(*gqmodel.SortBy), args["q"].(*string)), true
 
 	case "Query.getDomain":
 		if e.complexity.Query.GetDomain == nil {
@@ -497,7 +497,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Links(childComplexity, args["pagination"].(gqmodel.PaginationQuery), args["sort"].(*gqmodel.SortBy)), true
+		return e.complexity.Query.Links(childComplexity, args["pagination"].(gqmodel.PaginationQuery), args["sort"].(*gqmodel.SortBy), args["q"].(*string)), true
 
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
@@ -509,7 +509,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Users(childComplexity, args["pagination"].(gqmodel.PaginationQuery), args["sort"].(*gqmodel.SortBy)), true
+		return e.complexity.Query.Users(childComplexity, args["pagination"].(gqmodel.PaginationQuery), args["sort"].(*gqmodel.SortBy), args["q"].(*string)), true
 
 	case "User.created_at":
 		if e.complexity.User.CreatedAt == nil {
@@ -914,6 +914,15 @@ func (ec *executionContext) field_Query_domains_args(ctx context.Context, rawArg
 		}
 	}
 	args["sort"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["q"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("q"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["q"] = arg2
 	return args, nil
 }
 
@@ -983,6 +992,15 @@ func (ec *executionContext) field_Query_links_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["sort"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["q"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("q"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["q"] = arg2
 	return args, nil
 }
 
@@ -1007,6 +1025,15 @@ func (ec *executionContext) field_Query_users_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["sort"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["q"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("q"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["q"] = arg2
 	return args, nil
 }
 
@@ -2761,7 +2788,7 @@ func (ec *executionContext) _Query_links(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Links(rctx, fc.Args["pagination"].(gqmodel.PaginationQuery), fc.Args["sort"].(*gqmodel.SortBy))
+		return ec.resolvers.Query().Links(rctx, fc.Args["pagination"].(gqmodel.PaginationQuery), fc.Args["sort"].(*gqmodel.SortBy), fc.Args["q"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2893,7 +2920,7 @@ func (ec *executionContext) _Query_domains(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Domains(rctx, fc.Args["pagination"].(gqmodel.PaginationQuery), fc.Args["sort"].(*gqmodel.SortBy))
+		return ec.resolvers.Query().Domains(rctx, fc.Args["pagination"].(gqmodel.PaginationQuery), fc.Args["sort"].(*gqmodel.SortBy), fc.Args["q"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3025,7 +3052,7 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Users(rctx, fc.Args["pagination"].(gqmodel.PaginationQuery), fc.Args["sort"].(*gqmodel.SortBy))
+		return ec.resolvers.Query().Users(rctx, fc.Args["pagination"].(gqmodel.PaginationQuery), fc.Args["sort"].(*gqmodel.SortBy), fc.Args["q"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

@@ -58,7 +58,7 @@ func (r *LinkRepository) DeleteById(id int) error {
 	return err
 }
 
-func (repo *LinkRepository) Get(fields []string, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.LinksResult, error) {
+func (repo *LinkRepository) Get(fields []string, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, searchTerm *string) (*gqmodel.LinksResult, error) {
 	sqlFields := "id,original_link,hash,is_active,created_at,updated_at"
 	if len(fields) > 0 {
 		sqlFields = strings.Join(fields, ",")
@@ -72,19 +72,47 @@ func (repo *LinkRepository) Get(fields []string, pagination gqmodel.PaginationQu
 		ordering.Column = &column
 	}
 
+	query := "SELECT %s FROM links WHERE deleted_at IS NULL ORDER BY %s %s LIMIT $1 OFFSET $2"
+	term := ""
+
+	if searchTerm != nil && strings.TrimSpace(*searchTerm) != "" {
+		term = fmt.Sprintf("%%%s%%", strings.TrimSpace(*searchTerm))
+		query = `SELECT %s
+			FROM links
+			WHERE deleted_at IS NULL
+			AND (original_link ILIKE $1 OR hash ILIKE $2)
+			ORDER BY %s %s
+			LIMIT $3 OFFSET $4`
+	}
+
 	q := fmt.Sprintf(
-		"SELECT %s FROM links WHERE deleted_at IS NULL ORDER BY %s %s LIMIT $1 OFFSET $2",
+		query,
 		sqlFields,
 		*ordering.Column,
 		*ordering.Direction,
 	)
 
 	// instead of select * should select only selected properties by the query
-	rows, err := repo.DB.Query(
-		q,
-		paginator.Limit(),
-		paginator.Offset(),
-	)
+	var rows *sql.Rows
+	var err error
+	if term != "" {
+		rows, err = repo.DB.Query(
+			q,
+			term,
+			term,
+			paginator.Limit(),
+			paginator.Offset(),
+		)
+
+		println(term)
+	} else {
+		rows, err = repo.DB.Query(
+			q,
+			paginator.Limit(),
+			paginator.Offset(),
+		)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +138,12 @@ func (repo *LinkRepository) Get(fields []string, pagination gqmodel.PaginationQu
 	}
 
 	var total int
-	err = repo.DB.QueryRow("SELECT count(*) FROM links WHERE deleted_at IS NULL").Scan(&total)
+	if term != "" {
+		err = repo.DB.QueryRow("SELECT count(*) FROM links WHERE deleted_at IS NULL AND (original_link ILIKE $1 OR hash ILIKE $2)", term, term).Scan(&total)
+	} else {
+		err = repo.DB.QueryRow("SELECT count(*) FROM links WHERE deleted_at IS NULL").Scan(&total)
+	}
+
 	if err != nil {
 		return nil, err
 	}

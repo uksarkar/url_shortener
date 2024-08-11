@@ -8,11 +8,12 @@ import { client } from "~/lib/graphql-client";
 export async function getLinks(
   per_page: number,
   current_page: number,
-  sort?: SortBy<keyof Link>
+  sort?: SortBy<keyof Link>,
+  q?: string
 ) {
   const QUERY = gql`
-    query GetLinks($pagination: PaginationQuery!, $sort: SortBy) {
-      links(pagination: $pagination, sort: $sort) {
+    query GetLinks($pagination: PaginationQuery!, $sort: SortBy, $q: String) {
+      links(pagination: $pagination, sort: $sort, q: $q) {
         data {
           id
           original_link
@@ -41,7 +42,8 @@ export async function getLinks(
         per_page,
         current_page
       },
-      sort
+      sort,
+      q
     }
   );
 

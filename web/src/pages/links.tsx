@@ -42,14 +42,20 @@ export default function Links() {
   const [search, setSearch] = useSearchParams();
   const [perPage] = createSignal(10);
   const [page, setPage] = createSignal(Number(search.page) || 1);
+  const [q, setQ] = createSignal<string>();
 
   const [data, { refetch, mutate }] = createResource(
-    () => [perPage(), page()] as [number, number],
-    async ([perPage, page]) => {
-      return await getLinks(perPage, page, {
-        direction: "desc",
-        column: "created_at"
-      });
+    () => [perPage(), page(), q()] as [number, number, string],
+    async ([perPage, page, q]) => {
+      return await getLinks(
+        perPage,
+        page,
+        {
+          direction: "desc",
+          column: "created_at"
+        },
+        q
+      );
     }
   );
 
@@ -107,7 +113,14 @@ export default function Links() {
       <Card>
         <CardHeader>
           <Flex justifyContent="between">
-            <Search />
+            <Search
+              value={q()}
+              placeholder="Search links..."
+              onChange={val => {
+                setQ(val);
+                console.log(val);
+              }}
+            />
             <div>
               <CreateLinkDialog onSuccess={refetch} />
             </div>
