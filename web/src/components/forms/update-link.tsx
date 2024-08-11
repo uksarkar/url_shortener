@@ -13,28 +13,39 @@ import { TextField, TextFieldInput, TextFieldLabel } from "../ui/text-field";
 import { showToast } from "../ui/toast";
 import type CreateLink from "~/interfaces/CreateLink";
 import { useMutation } from "~/hooks/useMutation";
-import { shortLink } from "~/api/link";
+import { updateLink } from "~/api/link";
 import Link from "~/interfaces/Link";
 import Loader from "../base/loader";
 
-function defaultFormData(): CreateLink {
+function defaultFormData(link: Link): CreateLink {
   return {
-    original_link: "",
-    is_active: true
+    original_link: link.original_link,
+    is_active: link.is_active,
+    domain_id: link.domain_id,
+    hash: link.hash
   };
 }
 
-export default function CreateLinkDialog({
-  onSuccess
+export default function UpdateLinkDialog({
+  onSuccess,
+  link
 }: {
-  onSuccess?: () => void;
+  onSuccess?: (res: Omit<Link, "created_at">) => void;
+  link: Link;
 }) {
-  const [formData, setFormData] = createSignal<CreateLink>(defaultFormData());
-  const [create, isLoading, err] = useMutation<Link, CreateLink>(shortLink);
+  const [formData, setFormData] = createSignal<CreateLink>(
+    defaultFormData(link)
+  );
+
+  const [update, isLoading, err] = useMutation<
+    Omit<Link, "created_at">,
+    { id: number; input: CreateLink }
+  >(({ id, input }) => updateLink(id, input));
+
   const [isOpen, setIsOpen] = createSignal(false);
 
-  function createLink() {
-    create(formData()).then(() => {
+  function doUpdate() {
+    update({ id: link.id, input: formData() }).then(res => {
       if (err()) {
         showToast({
           title: "Error",
@@ -42,15 +53,16 @@ export default function CreateLinkDialog({
           variant: "error"
         });
       } else {
-        setFormData(defaultFormData());
+        setFormData(defaultFormData({ ...link, ...res }));
         setIsOpen(false);
 
         showToast({
           title: "Success",
-          description: "The link has been shorten",
+          description: "The link has been updated",
           variant: "success"
         });
-        onSuccess?.();
+
+        onSuccess?.(res!);
       }
     });
   }
@@ -62,11 +74,11 @@ export default function CreateLinkDialog({
           class={buttonVariants({ variant: "secondary" })}
           as={Button<"button">}
         >
-          Add Link
+          Edit
         </DialogTrigger>
         <DialogContent class="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Shorten link</DialogTitle>
+            <DialogTitle>Update link</DialogTitle>
             <DialogDescription>
               Fill the form and click save when you're done.
             </DialogDescription>
@@ -105,7 +117,7 @@ export default function CreateLinkDialog({
             </TextField>
           </div>
           <DialogFooter>
-            <Button type="button" onClick={createLink}>
+            <Button type="button" onClick={doUpdate}>
               <Show when={isLoading()} fallback={"Save"}>
                 <Loader />
               </Show>

@@ -28,13 +28,14 @@ import {
 import { getLinks, updateLink } from "~/api/link";
 import { format } from "date-fns";
 import TableLoader from "~/components/base/table-loader";
-import CreateLinkDialog from "~/components/forms/CreateLink";
+import CreateLinkDialog from "~/components/forms/create-link";
 import { Checkbox } from "~/components/ui/checkbox";
 import Link from "~/interfaces/Link";
 import { showToast } from "~/components/ui/toast";
 import { produce } from "immer";
 import { useSearchParams } from "@solidjs/router";
 import { useMutation } from "~/hooks/useMutation";
+import UpdateLinkDialog from "~/components/forms/update-link";
 
 export default function Links() {
   const [search, setSearch] = useSearchParams();
@@ -60,7 +61,21 @@ export default function Links() {
     })
   );
 
-  function update(link: Link, i: number) {
+  function updateList(link: Link) {
+    mutate(d =>
+      produce(d, draft => {
+        if (!draft) {
+          return;
+        }
+
+        draft.data = draft.data.map(item =>
+          link.id === item.id ? { ...item, ...link } : item
+        );
+      })
+    );
+  }
+
+  function update(link: Link) {
     linkUpdate(link).then(res => {
       if (!updateErr()) {
         showToast({
@@ -68,18 +83,7 @@ export default function Links() {
           title: "Success",
           description: `Link updated`
         });
-
-        mutate(d =>
-          produce(d, draft => {
-            if (!draft) {
-              return;
-            }
-
-            draft.data = draft.data.map((item, ind) =>
-              ind === i ? { ...link, ...res } : item
-            );
-          })
-        );
+        updateList({ ...link, ...res });
       } else {
         showToast({
           variant: "error",
@@ -125,7 +129,7 @@ export default function Links() {
               </Show>
               <Show when={!data.loading}>
                 <For each={data()?.data}>
-                  {(item, index) => (
+                  {item => (
                     <TableRow>
                       <TableCell class="font-medium">{item.id}</TableCell>
                       <TableCell>
@@ -139,7 +143,7 @@ export default function Links() {
                         <Checkbox
                           checked={item.is_active}
                           onChange={(checked: boolean) => {
-                            update({ ...item, is_active: checked }, index());
+                            update({ ...item, is_active: checked });
                           }}
                           disabled={isUpdating()}
                         />
@@ -147,7 +151,12 @@ export default function Links() {
                       <TableCell>
                         {format(item.created_at, "MM-dd-yyyy hh:mm")}
                       </TableCell>
-                      <TableCell class="text-right">...</TableCell>
+                      <TableCell class="text-right">
+                        <UpdateLinkDialog
+                          link={item}
+                          onSuccess={res => updateList({ ...item, ...res })}
+                        />
+                      </TableCell>
                     </TableRow>
                   )}
                 </For>

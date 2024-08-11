@@ -11,8 +11,7 @@ export function useMutation<T, D>(
     setIsLoading(true);
     setError(null);
     try {
-      const response = await cb(data);
-      return response;
+      return await cb(data);
     } catch (err) {
       const message = (err as ClientError).response?.errors?.[0]?.message;
       setError(message || (err as Error).message);

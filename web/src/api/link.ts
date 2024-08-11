@@ -85,11 +85,11 @@ export async function updateLink(id: number, input: CreateLink) {
   `;
 
   const response = await client.request<{
-    createLink: Omit<Link, "created_at">;
+    updateLink: Omit<Link, "created_at">;
   }>(MUTATION, {
     id,
     input
   });
 
-  return response.createLink;
+  return response.updateLink;
 }
