@@ -69,3 +69,27 @@ export async function shortLink(input: CreateLink) {
 
   return response.createLink;
 }
+
+export async function updateLink(id: number, input: CreateLink) {
+  const MUTATION = gql`
+    mutation UpdateLink($id: Int!, $input: CreateLink!) {
+      updateLink(id: $id, input: $input) {
+        id
+        original_link
+        hash
+        domain_id
+        is_active
+        updated_at
+      }
+    }
+  `;
+
+  const response = await client.request<{
+    createLink: Omit<Link, "created_at">;
+  }>(MUTATION, {
+    id,
+    input
+  });
+
+  return response.createLink;
+}

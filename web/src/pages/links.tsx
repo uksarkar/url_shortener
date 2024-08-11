@@ -18,17 +18,30 @@ import {
   PaginationNext,
   PaginationPrevious
 } from "~/components/ui/pagination";
-import { createResource, createSignal, For, Show } from "solid-js";
-import { getLinks } from "~/api/link";
+import {
+  createEffect,
+  createResource,
+  createSignal,
+  For,
+  Show
+} from "solid-js";
+import { getLinks, updateLink } from "~/api/link";
 import { format } from "date-fns";
 import TableLoader from "~/components/base/table-loader";
 import CreateLinkDialog from "~/components/forms/CreateLink";
+import { Checkbox } from "~/components/ui/checkbox";
+import Link from "~/interfaces/Link";
+import { showToast } from "~/components/ui/toast";
+import { produce } from "immer";
+import { useSearchParams } from "@solidjs/router";
+import { useMutation } from "~/hooks/useMutation";
 
 export default function Links() {
-  const [perPage, setPerPage] = createSignal(10);
-  const [page, setPage] = createSignal(1);
+  const [search, setSearch] = useSearchParams();
+  const [perPage] = createSignal(10);
+  const [page, setPage] = createSignal(Number(search.page) || 1);
 
-  const [data, { refetch }] = createResource(
+  const [data, { refetch, mutate }] = createResource(
     () => [perPage(), page()] as [number, number],
     async ([perPage, page]) => {
       return await getLinks(perPage, page, {
@@ -37,6 +50,51 @@ export default function Links() {
       });
     }
   );
+
+  const [linkUpdate, isUpdating, updateErr] = useMutation((updatedLink: Link) =>
+    updateLink(updatedLink.id, {
+      original_link: updatedLink.original_link,
+      domain_id: updatedLink.domain_id,
+      hash: updatedLink.hash,
+      is_active: updatedLink.is_active
+    })
+  );
+
+  function update(link: Link, i: number) {
+    linkUpdate(link).then(res => {
+      if (!updateErr()) {
+        showToast({
+          variant: "success",
+          title: "Success",
+          description: `Link updated`
+        });
+
+        mutate(d =>
+          produce(d, draft => {
+            if (!draft) {
+              return;
+            }
+
+            draft.data = draft.data.map((item, ind) =>
+              ind === i ? { ...link, ...res } : item
+            );
+          })
+        );
+      } else {
+        showToast({
+          variant: "error",
+          title: "Err",
+          description: updateErr()
+        });
+      }
+    });
+  }
+
+  createEffect(() => {
+    setSearch({
+      page: page()
+    });
+  });
 
   return (
     <>
@@ -67,7 +125,7 @@ export default function Links() {
               </Show>
               <Show when={!data.loading}>
                 <For each={data()?.data}>
-                  {item => (
+                  {(item, index) => (
                     <TableRow>
                       <TableCell class="font-medium">{item.id}</TableCell>
                       <TableCell>
@@ -78,7 +136,13 @@ export default function Links() {
                         </small>
                       </TableCell>
                       <TableCell>
-                        {item.is_active ? "Active" : "Inactive"}
+                        <Checkbox
+                          checked={item.is_active}
+                          onChange={(checked: boolean) => {
+                            update({ ...item, is_active: checked }, index());
+                          }}
+                          disabled={isUpdating()}
+                        />
                       </TableCell>
                       <TableCell>
                         {format(item.created_at, "MM-dd-yyyy hh:mm")}
