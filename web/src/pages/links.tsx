@@ -36,6 +36,7 @@ import { produce } from "immer";
 import { useSearchParams } from "@solidjs/router";
 import { useMutation } from "~/hooks/useMutation";
 import UpdateLinkDialog from "~/components/forms/update-link";
+import { DeleteLink } from "~/components/forms/delete-link";
 
 export default function Links() {
   const [search, setSearch] = useSearchParams();
@@ -152,10 +153,16 @@ export default function Links() {
                         {format(item.created_at, "MM-dd-yyyy hh:mm")}
                       </TableCell>
                       <TableCell class="text-right">
-                        <UpdateLinkDialog
-                          link={item}
-                          onSuccess={res => updateList({ ...item, ...res })}
-                        />
+                        <Flex justifyContent="end" class="gap-2">
+                          <UpdateLinkDialog
+                            link={item}
+                            onSuccess={res => updateList({ ...item, ...res })}
+                          />
+                          <DeleteLink
+                            id={item.id}
+                            onSuccess={() => refetch()}
+                          />
+                        </Flex>
                       </TableCell>
                     </TableRow>
                   )}

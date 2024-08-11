@@ -93,3 +93,19 @@ export async function updateLink(id: number, input: CreateLink) {
 
   return response.updateLink;
 }
+
+export async function deleteLink(id: number) {
+  const MUTATION = gql`
+    mutation UpdateLink($id: Int!) {
+      deleteLink(id: $id)
+    }
+  `;
+
+  const response = await client.request<{
+    deleteLink: string;
+  }>(MUTATION, {
+    id
+  });
+
+  return response.deleteLink;
+}
