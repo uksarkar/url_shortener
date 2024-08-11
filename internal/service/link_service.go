@@ -91,6 +91,13 @@ func (s *LinkService) Delete(id int) (string, error) {
 	return "Link deleted", err
 }
 
+func (s *LinkService) Count() (int, error) {
+	var count int
+	err := s.Repo.DB.QueryRow("SELECT count(*) FROM links WHERE deleted_at IS NULL").Scan(&count)
+
+	return count, err
+}
+
 func parseHash(inputHash *string, link string) string {
 	var hash string
 	if inputHash == nil || *inputHash == "" || strings.TrimSpace(*inputHash) == "" {

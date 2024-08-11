@@ -50,6 +50,18 @@ export async function getLinks(
   return response.links;
 }
 
+export async function getLinksCount() {
+  const QUERY = gql`
+    query {
+      totalLinks
+    }
+  `;
+
+  const response = await client.request<{ totalLinks: number }>(QUERY);
+
+  return response.totalLinks;
+}
+
 export async function shortLink(input: CreateLink) {
   const MUTATION = gql`
     mutation CreateLink($input: CreateLink!) {

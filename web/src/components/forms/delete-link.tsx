@@ -12,6 +12,7 @@ import { useMutation } from "~/hooks/useMutation";
 import { deleteLink } from "~/api/link";
 import { showToast } from "../ui/toast";
 import { createSignal } from "solid-js";
+import { linksCount, setLinksCount } from "~/stores/link-count";
 
 export function DeleteLink({
   id,
@@ -43,6 +44,7 @@ export function DeleteLink({
       });
       setIsOpen(false);
       onSuccess();
+      setLinksCount((linksCount() || 0) - 1);
     });
   }
 

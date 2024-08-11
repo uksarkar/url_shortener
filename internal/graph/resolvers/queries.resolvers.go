@@ -21,6 +21,11 @@ func (r *queryResolver) GetLink(ctx context.Context, id int) (*gqmodel.Link, err
 	return r.LinkService.Repo.Find(id)
 }
 
+// TotalLinks is the resolver for the totalLinks field.
+func (r *queryResolver) TotalLinks(ctx context.Context) (int, error) {
+	return r.LinkService.Count()
+}
+
 // Domains is the resolver for the domains field.
 func (r *queryResolver) Domains(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) (*gqmodel.DomainsResult, error) {
 	fields := r.GetNestedFieldsOf(ctx, "data")

@@ -16,6 +16,7 @@ import { useMutation } from "~/hooks/useMutation";
 import { shortLink } from "~/api/link";
 import Link from "~/interfaces/Link";
 import Loader from "../base/loader";
+import { linksCount, setLinksCount } from "~/stores/link-count";
 
 function defaultFormData(): CreateLink {
   return {
@@ -51,6 +52,7 @@ export default function CreateLinkDialog({
           variant: "success"
         });
         onSuccess?.();
+        setLinksCount((linksCount() || 0) + 1);
       }
     });
   }

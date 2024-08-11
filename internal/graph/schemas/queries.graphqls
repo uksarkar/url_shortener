@@ -2,6 +2,7 @@ type Query {
   # Link
   links(pagination: PaginationQuery!, sort: SortBy, q: String): LinksResult!
   getLink(id: Int!): Link!
+  totalLinks: Int!
 
   # Domain
   domains(pagination: PaginationQuery!, sort: SortBy, q: String): DomainsResult!

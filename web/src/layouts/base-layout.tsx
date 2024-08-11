@@ -1,5 +1,5 @@
 import { RouteSectionProps } from "@solidjs/router";
-import { createEffect, createSignal, For } from "solid-js";
+import { createEffect, createSignal, For, onMount } from "solid-js";
 import { Nav } from "~/components/base/nav";
 import { Search } from "~/components/base/search";
 import { UserNav } from "~/components/base/user-nav";
@@ -23,16 +23,24 @@ import { Separator } from "~/components/ui/separator";
 import { useCurrentMatches } from "@solidjs/router";
 import {
   setBreadcrumbs,
-  defaultBreadcrumbs, 
+  defaultBreadcrumbs,
   BreadcrumbListItem,
   useBreadcrumbs
 } from "~/stores/base-store";
+import { linksCount, setLinksCount } from "~/stores/link-count";
+import { getLinksCount } from "~/api/link";
 
 const BaseLayout = (props: RouteSectionProps) => {
   const [isCollapsed, setIsCollapsed] = createSignal(false);
 
   // hooks
   const route = useCurrentMatches();
+
+  onMount(() => {
+    getLinksCount().then(res => {
+      setLinksCount(res);
+    });
+  });
 
   // effects
   createEffect(() => {
@@ -87,7 +95,7 @@ const BaseLayout = (props: RouteSectionProps) => {
               },
               {
                 title: "Links",
-                label: "9",
+                label: linksCount(),
                 icon: LinkIcon,
                 to: "/links"
               },

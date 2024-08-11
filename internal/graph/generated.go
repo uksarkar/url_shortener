@@ -99,12 +99,13 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Domains   func(childComplexity int, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) int
-		GetDomain func(childComplexity int, id int) int
-		GetLink   func(childComplexity int, id int) int
-		GetUser   func(childComplexity int, id int) int
-		Links     func(childComplexity int, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) int
-		Users     func(childComplexity int, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) int
+		Domains    func(childComplexity int, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) int
+		GetDomain  func(childComplexity int, id int) int
+		GetLink    func(childComplexity int, id int) int
+		GetUser    func(childComplexity int, id int) int
+		Links      func(childComplexity int, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) int
+		TotalLinks func(childComplexity int) int
+		Users      func(childComplexity int, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) int
 	}
 
 	User struct {
@@ -138,6 +139,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Links(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) (*gqmodel.LinksResult, error)
 	GetLink(ctx context.Context, id int) (*gqmodel.Link, error)
+	TotalLinks(ctx context.Context) (int, error)
 	Domains(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) (*gqmodel.DomainsResult, error)
 	GetDomain(ctx context.Context, id int) (*gqmodel.Domain, error)
 	Users(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) (*gqmodel.UserResult, error)
@@ -498,6 +500,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Links(childComplexity, args["pagination"].(gqmodel.PaginationQuery), args["sort"].(*gqmodel.SortBy), args["q"].(*string)), true
+
+	case "Query.totalLinks":
+		if e.complexity.Query.TotalLinks == nil {
+			break
+		}
+
+		return e.complexity.Query.TotalLinks(childComplexity), true
 
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
@@ -2902,6 +2911,50 @@ func (ec *executionContext) fieldContext_Query_getLink(ctx context.Context, fiel
 	if fc.Args, err = ec.field_Query_getLink_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_totalLinks(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_totalLinks(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().TotalLinks(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_totalLinks(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
 	}
 	return fc, nil
 }
@@ -6190,6 +6243,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getLink(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "totalLinks":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_totalLinks(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
