@@ -37,22 +37,44 @@ import { useSearchParams } from "@solidjs/router";
 import { useMutation } from "~/hooks/useMutation";
 import UpdateLinkDialog from "~/components/forms/update-link";
 import { DeleteLink } from "~/components/forms/delete-link";
+import { IconChevronDown, IconChevronUp } from "~/components/icons";
+import useSorting from "~/hooks/useSorting";
+import { Direction } from "~/interfaces/SortBy";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "~/components/ui/select";
 
 export default function Links() {
   const [search, setSearch] = useSearchParams();
-  const [perPage] = createSignal(10);
   const [page, setPage] = createSignal(Number(search.page) || 1);
   const [q, setQ] = createSignal<string>();
+  const [perPage, setPerPage] = createSignal(10);
+
+  const { column, direction, toggleSorting, isAsc } = useSorting<Link>(
+    "DESC",
+    "created_at"
+  );
 
   const [data, { refetch, mutate }] = createResource(
-    () => [perPage(), page(), q()] as [number, number, string],
-    async ([perPage, page, q]) => {
+    () =>
+      [perPage(), page(), q(), column(), direction()] as [
+        number,
+        number,
+        string,
+        keyof Link,
+        Direction
+      ],
+    async ([perPage, page, q, column, direction]) => {
       return await getLinks(
         perPage,
         page,
         {
-          direction: "desc",
-          column: "created_at"
+          direction,
+          column
         },
         q
       );
@@ -133,7 +155,18 @@ export default function Links() {
                 <TableHead class="w-[100px]">ID</TableHead>
                 <TableHead>URL</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Added</TableHead>
+                <TableHead
+                  class="bg-gray-100 cursor-pointer"
+                  onClick={toggleSorting}
+                >
+                  <Flex justifyContent="between">
+                    Added
+                    <div>
+                      <IconChevronUp color={!isAsc() ? "#ccc" : undefined} />
+                      <IconChevronDown color={isAsc() ? "#ccc" : undefined} />
+                    </div>
+                  </Flex>
+                </TableHead>
                 <TableHead class="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -183,7 +216,27 @@ export default function Links() {
               </Show>
             </TableBody>
           </Table>
-          <Flex justifyContent="end">
+          <Flex justifyContent="between">
+            <div class="flex gap-2 items-center">
+              Per page:
+              <Select
+                value={perPage()}
+                onChange={setPerPage}
+                options={[10, 20, 50, 100]}
+                itemComponent={props => (
+                  <SelectItem item={props.item}>
+                    {props.item.rawValue}
+                  </SelectItem>
+                )}
+              >
+                <SelectTrigger aria-label="Per page" class="w-[180px]">
+                  <SelectValue<string>>
+                    {state => state.selectedOption()}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent />
+              </Select>
+            </div>
             <Pagination
               itemComponent={props => (
                 <PaginationItem page={props.page}>{props.page}</PaginationItem>

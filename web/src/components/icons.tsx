@@ -761,3 +761,11 @@ export function IconX(props: IconProps) {
     </Icon>
   );
 }
+
+export function IconChevronUp(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 15l6 -6l6 6" />
+    </Icon>
+  );
+}
