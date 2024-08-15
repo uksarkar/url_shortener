@@ -18,13 +18,7 @@ import {
   PaginationNext,
   PaginationPrevious
 } from "~/components/ui/pagination";
-import {
-  createEffect,
-  createResource,
-  createSignal,
-  For,
-  Show
-} from "solid-js";
+import { createResource, For, Show } from "solid-js";
 import { getLinks, updateLink } from "~/api/link";
 import { format } from "date-fns";
 import TableLoader from "~/components/base/table-loader";
@@ -33,12 +27,10 @@ import { Checkbox } from "~/components/ui/checkbox";
 import Link from "~/interfaces/Link";
 import { showToast } from "~/components/ui/toast";
 import { produce } from "immer";
-import { useSearchParams } from "@solidjs/router";
 import { useMutation } from "~/hooks/useMutation";
 import UpdateLinkDialog from "~/components/forms/update-link";
 import { DeleteLink } from "~/components/forms/delete-link";
 import { IconChevronDown, IconChevronUp } from "~/components/icons";
-import useSorting from "~/hooks/useSorting";
 import { Direction } from "~/interfaces/SortBy";
 import {
   Select,
@@ -47,17 +39,24 @@ import {
   SelectTrigger,
   SelectValue
 } from "~/components/ui/select";
+import useFilter from "~/hooks/useFilter";
 
 export default function Links() {
-  const [search, setSearch] = useSearchParams();
-  const [page, setPage] = createSignal(Number(search.page) || 1);
-  const [q, setQ] = createSignal<string>();
-  const [perPage, setPerPage] = createSignal(10);
-
-  const { column, direction, toggleSorting, isAsc } = useSorting<Link>(
-    "DESC",
-    "created_at"
-  );
+  const {
+    perPage,
+    page,
+    q,
+    column,
+    direction,
+    setQ,
+    setPage,
+    setPerPage,
+    toggleSorting,
+    isAsc
+  } = useFilter<Link>({
+    defaultColumn: "created_at",
+    defaultDirection: "DESC"
+  });
 
   const [data, { refetch, mutate }] = createResource(
     () =>
@@ -122,12 +121,6 @@ export default function Links() {
       }
     });
   }
-
-  createEffect(() => {
-    setSearch({
-      page: page()
-    });
-  });
 
   return (
     <>
