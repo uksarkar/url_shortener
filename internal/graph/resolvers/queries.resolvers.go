@@ -40,7 +40,7 @@ func (r *queryResolver) GetDomain(ctx context.Context, id int) (*gqmodel.Domain,
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, q *string) (*gqmodel.UserResult, error) {
 	fields := r.GetNestedFieldsOf(ctx, "data")
-	return r.UserService.Repo.Get(fields, pagination, sort)
+	return r.UserService.Repo.Get(fields, pagination, sort, q)
 }
 
 // GetUser is the resolver for the getUser field.

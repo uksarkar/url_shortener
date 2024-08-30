@@ -65,8 +65,8 @@ func (r *UserRepository) DeleteById(id int) error {
 	return err
 }
 
-func (repo *UserRepository) Get(fields []string, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy) (*gqmodel.UserResult, error) {
-	sqlFields := "id,name,is_admin,is_active,created_at,updated_at"
+func (repo *UserRepository) Get(fields []string, pagination gqmodel.PaginationQuery, sort *gqmodel.SortBy, searchTerm *string) (*gqmodel.UserResult, error) {
+	sqlFields := "id,name,email,is_admin,is_active,created_at,updated_at"
 	if len(fields) > 0 {
 		sqlFields = strings.Join(fields, ",")
 	}
@@ -79,19 +79,45 @@ func (repo *UserRepository) Get(fields []string, pagination gqmodel.PaginationQu
 		ordering.Column = &column
 	}
 
-	q := fmt.Sprintf(
-		"SELECT %s FROM users WHERE deleted_at IS NULL ORDER BY %s %s LIMIT $1 OFFSET $2",
-		*ordering.Column,
-		sqlFields,
-		*ordering.Direction,
-	)
+	baseQuery := "FROM users WHERE deleted_at IS NULL"
+	args := 1
+	term := ""
 
-	// instead of select * should select only selected properties by the query
-	rows, err := repo.DB.Query(
-		q,
-		paginator.Limit(),
-		paginator.Offset(),
+	if searchTerm != nil && strings.TrimSpace(*searchTerm) != "" {
+		term = fmt.Sprintf("%%%s%%", strings.TrimSpace(*searchTerm))
+		baseQuery = fmt.Sprintf("%s AND (email ILIKE $%d OR name ILIKE $%d)", baseQuery, args, args+1)
+		args += 2
+	}
+
+	q := fmt.Sprintf(
+		"SELECT %s %s ORDER BY %s %s LIMIT $%d OFFSET $%d",
+		sqlFields,
+		baseQuery,
+		*ordering.Column,
+		*ordering.Direction,
+		args,
+		args+1,
 	)
+	args += 2
+
+	var rows *sql.Rows
+	var err error
+	if term != "" {
+		rows, err = repo.DB.Query(
+			q,
+			term,
+			term,
+			paginator.Limit(),
+			paginator.Offset(),
+		)
+	} else {
+		rows, err = repo.DB.Query(
+			q,
+			paginator.Limit(),
+			paginator.Offset(),
+		)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +143,13 @@ func (repo *UserRepository) Get(fields []string, pagination gqmodel.PaginationQu
 	}
 
 	var total int
-	err = repo.DB.QueryRow("SELECT count(*) FROM users WHERE deleted_at IS NULL").Scan(&total)
+
+	if term != "" {
+		err = repo.DB.QueryRow(fmt.Sprintf("SELECT count(*) %s", baseQuery), term, term).Scan(&total)
+	} else {
+		err = repo.DB.QueryRow(fmt.Sprintf("SELECT count(*) %s", baseQuery)).Scan(&total)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -140,10 +172,10 @@ func (repo *UserRepository) scanToFields(rows *sql.Rows, user *gqmodel.User, fie
 			values[i] = &user.Email
 		case "is_admin":
 			values[i] = &user.IsAdmin
-		case "created_at":
-			values[i] = &user.CreatedAt
 		case "is_active":
 			values[i] = &user.IsActive
+		case "created_at":
+			values[i] = &user.CreatedAt
 		case "updated_at":
 			values[i] = &user.UpdatedAt
 		}
